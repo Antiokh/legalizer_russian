@@ -111,6 +111,7 @@ def resolve_profile(
 
     active: dict[str, dict[str, Any]] = {}
     inactive: dict[str, str] = {}
+    source_inactive: dict[str, dict[str, Any]] = {}
     disabled_external: set[str] = set()
 
     for item in disabled:
@@ -135,6 +136,7 @@ def resolve_profile(
         )
         if not ok:
             inactive[rule_id] = reason or "not applicable"
+            source_inactive[rule_id] = resolved_rule
             continue
         active[rule_id] = resolved_rule
 
@@ -151,4 +153,5 @@ def resolve_profile(
         external_severity=external_severity,
         notes=list(profile.get("notes", []) or []),
         inactive_rules=inactive,
+        source_inactive_rules=source_inactive,
     )
