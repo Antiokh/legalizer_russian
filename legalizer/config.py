@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -11,20 +12,37 @@ class ConfigError(RuntimeError):
     pass
 
 
+def _is_config_root(root: Path) -> bool:
+    return (
+        (root / "rules" / "rules.yaml").exists()
+        and (root / "profiles" / "profiles.yaml").exists()
+        and (root / "core" / "source-registry.yaml").exists()
+    )
+
+
 def find_project_root() -> Path:
     explicit = os.getenv("LEGALIZER_ROOT")
     if explicit:
         root = Path(explicit).expanduser().resolve()
-        if (root / "rules" / "rules.yaml").exists():
+        if _is_config_root(root):
             return root
-        raise ConfigError(f"LEGALIZER_ROOT does not contain rules/rules.yaml: {root}")
+        raise ConfigError(f"LEGALIZER_ROOT does not contain Legalizer configuration: {root}")
 
     candidates = [Path.cwd().resolve(), Path(__file__).resolve().parent.parent]
     for start in candidates:
         for root in (start, *start.parents):
-            if (root / "rules" / "rules.yaml").exists() and (root / "profiles" / "profiles.yaml").exists():
+            if _is_config_root(root):
                 return root
-    raise ConfigError("Cannot locate Legalizer project root. Set LEGALIZER_ROOT.")
+
+    # Wheels install canonical YAML files as data-files under the active Python
+    # environment, so CLI use does not depend on a repository checkout.
+    installed_root = Path(sys.prefix) / "share" / "legalizer_russian"
+    if _is_config_root(installed_root):
+        return installed_root
+
+    raise ConfigError(
+        "Cannot locate Legalizer configuration. Install the package with its data files or set LEGALIZER_ROOT."
+    )
 
 
 def load_yaml(path: Path) -> dict[str, Any]:
