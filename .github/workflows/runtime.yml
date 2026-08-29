@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install --upgrade pip
-      - run: pip install -e '.[dev]'
+      - run: pip install '.[dev]'
       - run: pytest
-      - run: legalizer resolve --profile contractual --json > /tmp/resolved.json
-      - run: legalizer sources --date 2026-08-29 --json > /tmp/sources.json
+      - run: cd /tmp && legalizer resolve --profile contractual --json > /tmp/resolved.json
+      - run: cd /tmp && legalizer sources --date 2026-08-29 --json > /tmp/sources.json
