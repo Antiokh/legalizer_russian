@@ -15,6 +15,28 @@ def lint_source_governance(
     severity: str = "HARD_GATE",
 ) -> list[Finding]:
     findings: list[Finding] = []
+
+    # An enabled rule may be intentionally withheld because none of its sources
+    # applies to this document date/jurisdiction. That is safer than applying an
+    # inapplicable rule, but it must not become a silent clean result.
+    for rule_id in resolved.source_inactive_rules:
+        reason = resolved.inactive_rules.get(rule_id, "source not applicable")
+        findings.append(
+            Finding(
+                rule_id="DOC-P01",
+                severity=severity,
+                message=(
+                    f"Правило {rule_id} включено профилем, но отключено по применимости источника: {reason}. "
+                    "Проверка по этому правилу не выполнена."
+                ),
+                meta={
+                    "affected_rule": rule_id,
+                    "problem": "enabled_rule_source_inapplicable",
+                    "reason": reason,
+                },
+            )
+        )
+
     for rule_id, rule in resolved.active_rules.items():
         source_ids = rule.get("source_ids") or []
         if not source_ids:
