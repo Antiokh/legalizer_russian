@@ -28,6 +28,7 @@ class ResolvedProfile:
     external_severity: dict[str, str] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
     inactive_rules: dict[str, str] = field(default_factory=dict)
+    source_inactive_rules: dict[str, dict[str, Any]] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -39,4 +40,5 @@ class ResolvedProfile:
             "external_severity": dict(sorted(self.external_severity.items())),
             "notes": self.notes,
             "inactive_rules": self.inactive_rules,
+            "source_inactive_rules": self.source_inactive_rules,
         }
