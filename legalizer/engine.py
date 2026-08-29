@@ -2,15 +2,8 @@ from __future__ import annotations
 
 from datetime import date
 
-from .linters import (
-    lint_defined_terms,
-    lint_internal_references,
-    lint_legislation_hierarchy,
-    lint_legislation_preamble,
-    lint_source_governance,
-    lint_vague_time_references,
-)
 from .model import Finding, ResolvedProfile
+from .registry import LintContext, run_registered_linters
 from .resolver import resolve_profile
 
 
@@ -33,58 +26,15 @@ def check_text(
         jurisdiction=jurisdiction,
     )
 
-    findings: list[Finding] = []
-
-    if "DOC-M05" in resolved.active_rules:
-        findings.extend(
-            lint_defined_terms(
-                text,
-                severity=resolved.active_rules["DOC-M05"].get("severity", "REVIEW"),
-            )
+    findings = run_registered_linters(
+        LintContext(
+            text=text,
+            resolved=resolved,
+            sources=sources,
+            document_date=document_date,
+            jurisdiction=jurisdiction,
         )
-
-    if "DOC-N01" in resolved.active_rules:
-        findings.extend(
-            lint_legislation_preamble(
-                text,
-                severity=resolved.active_rules["DOC-N01"].get("severity", "REVIEW"),
-            )
-        )
-
-    if "DOC-N02" in resolved.active_rules:
-        findings.extend(
-            lint_legislation_hierarchy(
-                text,
-                severity=resolved.active_rules["DOC-N02"].get("severity", "REVIEW"),
-            )
-        )
-
-    if "DOC-N04" in resolved.active_rules:
-        findings.extend(
-            lint_internal_references(
-                text,
-                severity=resolved.active_rules["DOC-N04"].get("severity", "HARD_GATE"),
-            )
-        )
-
-    if "LDB-009" in resolved.active_rules:
-        findings.extend(
-            lint_vague_time_references(
-                text,
-                severity=resolved.active_rules["LDB-009"].get("severity", "REVIEW"),
-            )
-        )
-
-    if "DOC-P01" in resolved.active_rules:
-        findings.extend(
-            lint_source_governance(
-                resolved,
-                sources,
-                document_date=document_date,
-                jurisdiction=jurisdiction,
-                severity=resolved.active_rules["DOC-P01"].get("severity", "HARD_GATE"),
-            )
-        )
+    )
 
     severity_rank = {"HARD_GATE": 0, "REVIEW": 1, "STYLE_WARNING": 2, "INFO": 3}
     findings.sort(
