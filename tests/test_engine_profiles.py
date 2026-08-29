@@ -1,3 +1,5 @@
+from datetime import date
+
 from legalizer.config import load_profiles, load_rules, load_sources
 from legalizer.engine import check_text
 
@@ -33,3 +35,48 @@ def test_broken_internal_reference_is_hard_gate_in_contract():
     text = "## 4. Ответственность\n\nПорядок указан в пункте 4.7 настоящего Договора.\n"
     findings = _check(text, "contractual")
     assert any(f.rule_id == "DOC-N04" and f.severity == "HARD_GATE" for f in findings)
+
+
+def test_source_inapplicable_enabled_rule_is_not_silent_pass():
+    rules = {
+        "DOC-P01": {
+            "title": "source governance",
+            "scope": ["contractual"],
+            "level": "source-governance",
+            "basis": "PROJECT_DERIVED",
+            "confidence": "high",
+            "severity": "HARD_GATE",
+            "source_status": "PROJECT_DERIVED",
+        },
+        "X": {
+            "title": "future rule",
+            "scope": ["contractual"],
+            "level": "document",
+            "basis": "SOURCE_DIRECT",
+            "confidence": "high",
+            "severity": "REVIEW",
+            "source_ids": ["FUTURE"],
+        },
+    }
+    profiles = {"contractual": {"enable": ["DOC-P01", "X"]}}
+    sources = {
+        "FUTURE": {
+            "status": "CURRENT_NORM",
+            "jurisdiction": "RU",
+            "effective_from": "2027-01-01",
+        }
+    }
+    resolved, findings = check_text(
+        "Текст документа.\n",
+        profile_name="contractual",
+        rules=rules,
+        profiles=profiles,
+        sources=sources,
+        document_date=date(2026, 8, 29),
+    )
+    assert "X" not in resolved.active_rules
+    assert "X" in resolved.source_inactive_rules
+    assert any(
+        f.rule_id == "DOC-P01" and f.meta.get("affected_rule") == "X" and f.severity == "HARD_GATE"
+        for f in findings
+    )
