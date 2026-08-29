@@ -123,17 +123,17 @@ Confidence: high
 
 Относительная формулировка не ошибочна, если точка отсчёта однозначна и стабильна в контексте.
 
-## LDB-010 — Direct word order is a register prior, not a hard grammar rule
+## LDB-010 — Direct word order follows information structure, not SVO
 
-Source locator: `BOOK-NOVOSELTSEVA-2018`, p. 8.  
-Scope: official-business prose  
+Source locators: `BOOK-ABRAMOVA-2017`, pp. 94–96; `BOOK-NOVOSELTSEVA-2018`, p. 8.  
+Scope: official/legal written prose  
 Basis: `PROJECT_REFINED`  
-Level: sentence  
-Confidence: medium
+Level: sentence/discourse  
+Confidence: high
 
-Источник описывает прямой порядок слов как характерный для официально-делового синтаксиса ради логической последовательности и точности.
+Абрамова связывает словопорядок с актуальным членением: обычное движение — от темы (данного) к реме (новому). Информативно значимый компонент часто оказывается в конце предложения. Подлежащее не обязано механически предшествовать сказуемому: если подлежащее является ремой, постпозиция может оставаться прямым, нейтральным порядком.
 
-Не превращать это в `SVO required`. Использовать только как слабый prior, если маркированный порядок создаёт двусмысленность или скрывает юридическую связь.
+Следствие для проекта: не применять `SVO required` и не переставлять слова ради абстрактной «естественности». Проверять словопорядок, когда перестановка меняет смысловое прикрепление, создаёт конкурирующее прочтение либо неоправданную экспрессию.
 
 ## LDB-011 — Formal requirements in old books are historical until revalidated
 
@@ -146,3 +146,73 @@ Confidence: high
 Книга до 2025 года может быть ценной для языка и жанра, но не активирует современное правило оформления/реквизита сама по себе.
 
 Сверять с ГОСТ Р 7.0.97-2025, актуальными правилами Росархива и другими применимыми текущими источниками.
+
+## LDB-012 — Stacked instrumental forms are an attachment-risk signal
+
+Source locator: `BOOK-ABRAMOVA-2017`, pp. 95–96.  
+Scope: official/legal written prose  
+Basis: `PROJECT_REFINED`  
+Level: sentence  
+Confidence: medium-high
+
+Источник показывает, что неправильное расположение управляемых компонентов и «нанизывание творительного падежа» затемняют синтаксическую связь; пример `Признание юридического лица банкротом судом...` исправляется восстановлением связи `признание судом`.
+
+Механический слой проекта намеренно уже источника: `REVIEW` выдаётся только на ограниченный шаблон — номинализация и далее две соседние вероятные формы на `-ом/-ем`. Это не морфологический разбор и не доказательство ошибки. Автоперестановка запрещена.
+
+## LDB-013 — Sentence complexity is judged by relation clarity, not length
+
+Source locator: `BOOK-ABRAMOVA-2017`, pp. 92–93.  
+Scope: official/legal prose; especially normative and administrative texts  
+Basis: `PROJECT_REFINED`  
+Level: sentence  
+Confidence: medium-high
+
+Для законодательного синтаксиса сложные и условные конструкции функциональны, когда выражают обусловленность нормы. Для канцелярского подстиля типичны сложные предложения, перечисления и обособленные обороты.
+
+Следствие для проекта: длина или наличие нескольких зависимых конструкций сами по себе не являются основанием для дробления. Общий редактор может предложить упрощение только после проверки, что не разрушает область действия условия, исключения, перечисления или юридически значимую связь.
+
+## LDB-014 — Directive infinitive is genre-specific
+
+Source locators: `BOOK-ABRAMOVA-2017`, pp. 92–93 and 112–114.  
+Scope: `official-admin/order`  
+Basis: `PROJECT_REFINED`  
+Level: clause  
+Confidence: high
+
+В приказах и распоряжениях инфинитив используется как форма побуждения; в других административно-канцелярских жанрах такая модальность не является общей нормой.
+
+Следствие для проекта: защищать инфинитивную директиву от generic imperative rewrite только в распорядительном профиле.
+
+## ADM-LETTER-001 — Business-letter composition is functional, not ceremonial
+
+Source locators: `BOOK-MARYEVA-2015-2`, pp. 101–102; `BOOK-ABRAMOVA-2017`, around pp. 119–120.  
+Scope: `official-admin/letter`  
+Basis: `SOURCE_REPEATED`  
+Level: document  
+Confidence: high
+
+Письмо может содержать обращение, основание/преамбулу, аналитическую часть и заключительное коммуникативное действие, но аналитическая часть нужна не всегда. Короткое письмо не следует искусственно раздувать до трёхчастного документа. Для отказа обоснование функционально важно.
+
+## ADM-ORDER-001 — Numbered directive contains an infinitive action
+
+Source locator: `BOOK-ABRAMOVA-2017`, pp. 112–114.  
+Scope: `official-admin/order`  
+Basis: `SOURCE_DIRECT`  
+Level: paragraph  
+Confidence: high
+
+Распорядительная часть после `ПРИКАЗЫВАЮ` содержит управленческие действия; пункты распорядительного характера начинаются/строятся вокруг глагола в неопределённой форме.
+
+Runtime ограничен явным маркером `ПРИКАЗЫВАЮ` и нумерованными пунктами после него. Если такой пункт не содержит инфинитивоподобной формы, выдаётся `REVIEW`, а не автоматическая правка.
+
+## ADM-ACT-001 — Act separates basis/event, established facts, and conclusions
+
+Source locator: `BOOK-ABRAMOVA-2017`, p. 114.  
+Scope: `official-admin/act`  
+Basis: `SOURCE_DIRECT`  
+Level: document  
+Confidence: high
+
+Во вводной части акта указывается основание либо событие/действие, послужившее причиной составления; в основной части излагаются установленные факты, выводы и заключения.
+
+Правило пока описательное: надёжно вывести эти смысловые роли regex-парсером нельзя.

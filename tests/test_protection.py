@@ -19,6 +19,20 @@ def test_contractual_defined_terms_are_located_and_protected():
     assert "generic_synonymize_repetition" in result.disabled_rules_on_spans
 
 
+def test_order_directive_infinitives_are_located_and_protected():
+    text = (
+        "ПРИКАЗЫВАЮ:\n"
+        "1. Директору подготовить предложения.\n"
+        "2. Бухгалтерии открыть счёт.\n"
+    )
+    result = collect_protected_spans(text, _resolved("official-admin/order"))
+    protected = [span for span in result.spans if span.kind == "directive_infinitive"]
+    assert [span.text for span in protected] == ["подготовить", "открыть"]
+    assert [span.meta["directive"] for span in protected] == ["1", "2"]
+    assert "generic_imperative_rewrite" in result.disabled_rules_on_spans
+    assert "directive_infinitive" not in result.unresolved_classes
+
+
 def test_unimplemented_protection_classes_stay_visible():
     result = collect_protected_spans("Текст договора.", _resolved("contractual"))
     assert "party_names" in result.unresolved_classes

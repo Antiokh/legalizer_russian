@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
+from .linters.admin_orders import directive_infinitive_occurrences
 from .linters.defined_terms import defined_term_occurrences
 from .model import ResolvedProfile
 from .text import line_column
@@ -57,6 +58,22 @@ def collect_protected_spans(text: str, resolved: ResolvedProfile) -> ProtectionR
                         "canonical": term.alias,
                         "definition_line": term.line,
                     },
+                )
+            )
+
+    if "directive_infinitive" in resolved.protected_classes:
+        resolved_classes.add("directive_infinitive")
+        for directive, match in directive_infinitive_occurrences(text):
+            line, column = line_column(text, match.start())
+            spans.append(
+                ProtectedSpan(
+                    kind="directive_infinitive",
+                    text=match.group(0),
+                    start=match.start(),
+                    end=match.end(),
+                    line=line,
+                    column=column,
+                    meta={"directive": directive.number},
                 )
             )
 
