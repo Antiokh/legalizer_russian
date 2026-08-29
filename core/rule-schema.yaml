@@ -1,0 +1,51 @@
+version: 1
+
+required_fields:
+  - id
+  - title
+  - scope
+  - level
+  - basis
+  - confidence
+  - severity
+
+fields:
+  id: "stable rule id"
+  title: "short human-readable name"
+  scope: "list of document profiles/registers"
+  level: "token|phrase|clause|sentence|paragraph|section|document|source-governance"
+  basis: "SOURCE_DIRECT|SOURCE_REPEATED|PROJECT_REFINED|PROJECT_DERIVED|EXTERNAL_CONFIRMED"
+  confidence: "low|medium|medium-high|high"
+  severity: "INFO|STYLE_WARNING|REVIEW|HARD_GATE"
+  source_ids: "list of source ids"
+  source_status: "CURRENT_NORM|PENDING_CHANGE|METHODICAL|DOMAIN_CONVENTION|HISTORICAL|PROJECT_DERIVED"
+  jurisdiction: "optional jurisdiction code"
+  effective_from: "optional ISO date"
+  effective_to: "optional ISO date"
+  trigger: "conditions that cause the rule to be evaluated"
+  invariant: "meaning/function that must survive a correction"
+  diagnostics: "questions/checks"
+  negative_boundary: "similar cases that must not be flagged automatically"
+  conflicts_with: "rule ids or external rule classes"
+  protects_from: "generic editor rule classes that must not touch the matched span"
+  autofix: "never|safe-only|allowed"
+
+resolver_actions:
+  - enable
+  - disable
+  - downgrade
+  - upgrade
+  - override
+  - protect
+
+source_priority:
+  - CURRENT_NORM
+  - CURRENT_STANDARD_WHEN_APPLICABLE
+  - METHODICAL
+  - DOMAIN_CONVENTION
+  - PROJECT_DERIVED
+
+notes:
+  - "Source priority is evaluated only after jurisdiction, date and scope applicability."
+  - "A stronger source outside its scope does not override a weaker applicable source."
+  - "No stylistic heuristic may silently change legal modality or defined-term identity."
