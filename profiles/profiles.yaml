@@ -17,6 +17,8 @@ profiles:
       - LDB-008
       - LDB-009
       - LDB-010
+      - LDB-012
+      - LDB-013
     protect:
       - defined_terms
       - conventional_document_cliches
@@ -27,6 +29,36 @@ profiles:
     disable_for_protected_spans:
       - generic_synonymize_repetition
       - generic_cliche_rewrite
+
+  official-admin/letter:
+    extends: official-admin
+    description: "Служебные и деловые письма."
+    enable:
+      - ADM-LETTER-001
+    notes:
+      - "Не навязывать трёхчастную композицию короткому письму: основание и аналитическая часть нужны только по функции."
+      - "Для отказа основания и логическая связь с выводом важнее ритуальной канцелярской длины."
+
+  official-admin/order:
+    extends: official-admin
+    description: "Приказы и близкие распорядительные документы с явной распорядительной частью."
+    enable:
+      - LDB-014
+      - ADM-ORDER-001
+    protect:
+      - directive_infinitive
+    disable_for_protected_spans:
+      - generic_imperative_rewrite
+    notes:
+      - "Инфинитивное побуждение является функциональным именно в распорядительной части и не переносится на все official-admin документы."
+
+  official-admin/act:
+    extends: official-admin
+    description: "Акты, фиксирующие установленные факты или события и выводы комиссии/составителей."
+    enable:
+      - ADM-ACT-001
+    notes:
+      - "Проверять функциональное разделение основания/события, установленных фактов и выводов; не выдумывать отсутствующие факты."
 
   normative:
     description: "Положения, правила, инструкции, регламенты, локальные нормативные акты."
@@ -47,14 +79,20 @@ profiles:
       - LDB-009
       - LDB-010
       - LDB-011
+      - LDB-012
+      - LDB-013
     protect:
       - defined_terms
       - legal_modality
       - conventional_document_cliches
+      - functional_long_syntax
+    downgrade:
+      generic_sentence_length: INFO
     disable_for_protected_spans:
       - generic_synonymize_repetition
       - generic_modality_simplification
       - generic_cliche_rewrite
+      - generic_sentence_split
 
   normative/legislation:
     extends: normative
@@ -63,6 +101,8 @@ profiles:
       - DOC-N01
       - DOC-N02
       - DOC-N03
+    protect:
+      - conditional_norm_structure
     override:
       DOC-N01:
         severity: REVIEW
@@ -70,6 +110,7 @@ profiles:
         severity: REVIEW
     notes:
       - "Правила преамбулы и законодательной иерархии не применяются к договорам и корпоративным политикам."
+      - "Сложное или условное предложение не дробить только по длине, если связи гипотезы, предписания и исключений остаются однозначными."
 
   contractual:
     description: "Договоры, соглашения, приложения, оферты и другие договорные документы."
@@ -85,16 +126,21 @@ profiles:
       - LDB-006
       - LDB-007
       - LDB-009
+      - LDB-010
       - LDB-011
+      - LDB-012
+      - LDB-013
     protect:
       - defined_terms
       - party_names
       - obligation_modality
       - cross_references
+      - functional_long_syntax
     disable_for_protected_spans:
       - generic_synonymize_repetition
       - generic_pronoun_substitution
       - generic_modality_simplification
+      - generic_sentence_split
     downgrade:
       generic_passive_voice: INFO
       generic_nominalization: INFO
@@ -112,12 +158,20 @@ profiles:
       - LDB-006
       - LDB-007
       - LDB-009
+      - LDB-010
       - LDB-011
+      - LDB-012
+      - LDB-013
     protect:
       - participant_names
       - legal_qualification_terms
       - requested_relief
       - cross_references
+      - functional_long_syntax
+    downgrade:
+      generic_sentence_length: INFO
+    disable_for_protected_spans:
+      - generic_sentence_split
     notes:
       - "Не навязывать универсальную структуру процессуального документа без источника для конкретного вида документа и применимого процесса."
       - "Контролируемая оценочность/эмоциональность допустима в отдельных жанрах и не блокируется общим правилом нейтральности."
