@@ -19,6 +19,11 @@ legalizer = "legalizer.cli:main"
 [tool.setuptools.packages.find]
 include = ["legalizer*"]
 
+[tool.setuptools.data-files]
+"share/legalizer_russian/rules" = ["rules/rules.yaml"]
+"share/legalizer_russian/profiles" = ["profiles/profiles.yaml"]
+"share/legalizer_russian/core" = ["core/source-registry.yaml"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
