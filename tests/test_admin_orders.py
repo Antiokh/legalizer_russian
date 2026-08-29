@@ -29,6 +29,18 @@ def test_numbered_order_directive_without_action_is_reviewed():
     assert findings[0].meta["directive"] == "1"
 
 
+def test_duplicate_numbers_do_not_share_action_state():
+    text = (
+        "ПРИКАЗЫВАЮ:\n"
+        "1. Директору подготовить предложения.\n"
+        "1. Бухгалтерии отдельный расчётный счёт.\n"
+    )
+    findings = lint_order_directive_infinitives(text)
+    assert len(findings) == 1
+    assert findings[0].meta["directive"] == "1"
+    assert findings[0].meta["directive_start"] > 0
+
+
 def test_nouns_ending_like_infinitives_do_not_fake_an_action():
     text = (
         "ПРИКАЗЫВАЮ:\n"
