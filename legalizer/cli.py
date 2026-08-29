@@ -7,7 +7,9 @@ from datetime import date
 from pathlib import Path
 
 from .config import ConfigError, find_project_root, load_profiles, load_rules, load_sources
+from .doctor import run_doctor
 from .engine import check_text
+from .protection import collect_protected_spans
 from .resolver import ResolverError, resolve_profile
 from .source_policy import source_applicability, validate_source_registry
 
@@ -93,6 +95,38 @@ def cmd_resolve(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_protect(args: argparse.Namespace) -> int:
+    _, rules, profiles, sources = _load()
+    path = Path(args.file)
+    text = path.read_text(encoding="utf-8")
+    resolved = resolve_profile(
+        args.profile,
+        rules,
+        profiles,
+        sources,
+        document_date=_date(args.date),
+        jurisdiction=args.jurisdiction,
+    )
+    result = collect_protected_spans(text, resolved)
+    payload = {
+        "profile": args.profile,
+        **result.to_dict(),
+    }
+    if args.json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
+    else:
+        for span in result.spans:
+            print(
+                f"{path}:{span.line}:{span.column} [{span.kind}] {span.text!r} "
+                f"({span.start}:{span.end})"
+            )
+        if result.unresolved_classes:
+            print("Protection classes without a runtime locator:", ", ".join(sorted(result.unresolved_classes)))
+        if result.disabled_rules_on_spans:
+            print("Disable on these spans:", ", ".join(sorted(result.disabled_rules_on_spans)))
+    return 0
+
+
 def cmd_sources(args: argparse.Namespace) -> int:
     _, rules, _, sources = _load()
     document_date = _date(args.date)
@@ -124,6 +158,21 @@ def cmd_sources(args: argparse.Namespace) -> int:
     return 1 if problems else 0
 
 
+def cmd_doctor(args: argparse.Namespace) -> int:
+    _, rules, profiles, sources = _load()
+    report = run_doctor(rules, profiles, sources)
+    if args.json:
+        print(json.dumps(report.to_dict(), ensure_ascii=False, indent=2, default=str))
+    else:
+        for issue in report.issues:
+            print(f"[{issue.level}] {issue.code}: {issue.message}")
+        print(
+            f"{len(report.errors)} error(s), {len(report.warnings)} warning(s); "
+            f"{len(report.implemented_rules)} runtime rule(s), {len(report.manual_rules)} contextual/manual rule(s)."
+        )
+    return 2 if report.errors else 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="legalizer")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -142,8 +191,17 @@ def build_parser() -> argparse.ArgumentParser:
     resolve.add_argument("--profile", required=True)
     resolve.set_defaults(func=cmd_resolve)
 
+    protect = sub.add_parser("protect", parents=[common], help="Locate spans protected by the selected profile")
+    protect.add_argument("file")
+    protect.add_argument("--profile", required=True)
+    protect.set_defaults(func=cmd_protect)
+
     sources = sub.add_parser("sources", parents=[common], help="Show source applicability")
     sources.set_defaults(func=cmd_sources)
+
+    doctor = sub.add_parser("doctor", help="Validate rules, profiles, sources and runtime registry")
+    doctor.add_argument("--json", action="store_true")
+    doctor.set_defaults(func=cmd_doctor)
     return parser
 
 
