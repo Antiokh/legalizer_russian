@@ -78,13 +78,13 @@ def directive_infinitive_occurrences(text: str) -> list[tuple[DirectiveParagraph
 def lint_order_directive_infinitives(text: str, severity: str = "REVIEW") -> list[Finding]:
     """Review parsed order directives that contain no conservative infinitive-like action."""
 
-    by_directive = {
-        directive.number
+    directives_with_action = {
+        directive.start
         for directive, _ in directive_infinitive_occurrences(text)
     }
     findings: list[Finding] = []
     for directive in extract_order_directives(text):
-        if directive.number in by_directive:
+        if directive.start in directives_with_action:
             continue
         line, column = line_column(text, directive.start)
         findings.append(
@@ -100,6 +100,7 @@ def lint_order_directive_infinitives(text: str, severity: str = "REVIEW") -> lis
                 evidence=line_excerpt(text, directive.start),
                 meta={
                     "directive": directive.number,
+                    "directive_start": directive.start,
                     "parser_confidence": "conservative-top-level-order-parser",
                 },
             )
