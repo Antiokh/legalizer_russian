@@ -1,0 +1,254 @@
+version: 1
+
+rules:
+  DOC-M01:
+    title: "Тип документа зависит от функции"
+    scope: [official-admin]
+    level: document
+    basis: SOURCE_DIRECT
+    confidence: high
+    severity: REVIEW
+    source_ids: [DOC-ROSARCHIVE-71, DOC-ROSARCHIVE-199]
+    source_status: CURRENT_NORM
+    jurisdiction: RU
+    autofix: never
+
+  DOC-M02:
+    title: "Обязательные реквизиты сохраняются в электронном представлении"
+    scope: [official-admin]
+    level: document
+    basis: SOURCE_DIRECT
+    confidence: high
+    severity: REVIEW
+    source_ids: [DOC-ROSARCHIVE-199]
+    source_status: METHODICAL
+    jurisdiction: RU
+    autofix: safe-only
+
+  DOC-M03:
+    title: "Область применения инструкции должна быть понятна"
+    scope: [normative]
+    level: document
+    basis: SOURCE_DIRECT
+    confidence: high
+    severity: REVIEW
+    source_ids: [DOC-ROSARCHIVE-199]
+    source_status: METHODICAL
+    jurisdiction: RU
+    autofix: never
+
+  DOC-M04:
+    title: "Специальные термины определяются однозначно"
+    scope: [normative]
+    level: document
+    basis: SOURCE_DIRECT
+    confidence: high
+    severity: REVIEW
+    source_ids: [DOC-ROSARCHIVE-199]
+    source_status: METHODICAL
+    protects_from: [generic_synonymize_repetition]
+    autofix: never
+
+  DOC-M05:
+    title: "Сокращённое наименование вводится после полного"
+    scope: [official-admin, normative, contractual, legal-procedural]
+    level: term
+    basis: PROJECT_REFINED
+    confidence: high
+    severity: REVIEW
+    source_ids: [DOC-ROSARCHIVE-199]
+    source_status: METHODICAL
+    protects_from: [generic_synonymize_repetition, generic_pronoun_substitution]
+    autofix: never
+
+  DOC-N01:
+    title: "Законодательная преамбула не содержит самостоятельных норм"
+    scope: [normative/legislation]
+    level: section
+    basis: SOURCE_DIRECT
+    confidence: high
+    severity: REVIEW
+    source_ids: [DOC-DUMA-LEGALTECH-2021]
+    source_status: METHODICAL
+    autofix: never
+
+  DOC-N02:
+    title: "Структурная иерархия законопроекта не произвольна"
+    scope: [normative/legislation]
+    level: document
+    basis: SOURCE_DIRECT
+    confidence: high
+    severity: REVIEW
+    source_ids: [DOC-DUMA-LEGALTECH-2021]
+    source_status: METHODICAL
+    autofix: never
+
+  DOC-N03:
+    title: "Ссылка в законопроекте должна выполнять функцию"
+    scope: [normative/legislation]
+    level: document
+    basis: SOURCE_DIRECT
+    confidence: high
+    severity: REVIEW
+    source_ids: [DOC-DUMA-LEGALTECH-2021]
+    source_status: METHODICAL
+    autofix: never
+
+  DOC-N04:
+    title: "Внутренние ссылки должны разрешаться"
+    scope: [normative, normative/legislation, contractual, legal-procedural]
+    level: document
+    basis: PROJECT_DERIVED
+    confidence: high
+    severity: HARD_GATE
+    source_ids: [DOC-DUMA-LEGALTECH-2021]
+    source_status: PROJECT_DERIVED
+    trigger: "high-confidence internal-reference parse"
+    autofix: never
+
+  DOC-P01:
+    title: "Будущую норму нельзя применять как действующую"
+    scope: [official-admin, normative, normative/legislation, contractual, legal-procedural]
+    level: source-governance
+    basis: PROJECT_DERIVED
+    confidence: high
+    severity: HARD_GATE
+    source_status: PROJECT_DERIVED
+    autofix: never
+
+  DOC-P02:
+    title: "Профессиональный повтор не равен стилистической ошибке"
+    scope: [official-admin, normative, normative/legislation, contractual, legal-procedural]
+    level: term
+    basis: PROJECT_REFINED
+    confidence: high
+    severity: INFO
+    source_ids: [DOC-ROSARCHIVE-199, BOOK-ABRAMOVA-2017, BOOK-MOTYAKINA-LOPATIN-2016]
+    source_status: DOMAIN_CONVENTION
+    protects_from: [generic_synonymize_repetition]
+    autofix: never
+
+  LDB-001:
+    title: "Жанр определяет композицию"
+    scope: [official-admin, normative, normative/legislation, contractual, legal-procedural]
+    level: document
+    basis: SOURCE_DIRECT
+    confidence: high
+    severity: REVIEW
+    source_ids: [BOOK-MARYEVA-2015-2]
+    source_status: DOMAIN_CONVENTION
+    autofix: never
+
+  LDB-002:
+    title: "Порядок информации выражает логическую связь"
+    scope: [official-admin, normative, normative/legislation, contractual, legal-procedural]
+    level: document
+    basis: PROJECT_REFINED
+    confidence: high
+    severity: REVIEW
+    source_ids: [BOOK-MARYEVA-2015-2]
+    source_status: DOMAIN_CONVENTION
+    autofix: never
+
+  LDB-003:
+    title: "Редактирование идёт от документа к предложению"
+    scope: [official-admin, normative, normative/legislation, contractual, legal-procedural]
+    level: document
+    basis: SOURCE_REPEATED
+    confidence: high
+    severity: INFO
+    source_ids: [BOOK-MARYEVA-2015-2, BOOK-NOVOSELTSEVA-2018]
+    source_status: DOMAIN_CONVENTION
+    autofix: never
+
+  LDB-004:
+    title: "Функциональное клише не является автоматическим дефектом"
+    scope: [official-admin, normative, normative/legislation]
+    level: phrase
+    basis: SOURCE_DIRECT
+    confidence: high
+    severity: INFO
+    source_ids: [BOOK-NOVOSELTSEVA-2018]
+    source_status: DOMAIN_CONVENTION
+    protects_from: [generic_cliche_rewrite]
+    autofix: never
+
+  LDB-005:
+    title: "Юридически значимая формулировка должна быть однозначной"
+    scope: [official-admin, normative, normative/legislation, contractual, legal-procedural]
+    level: sentence
+    basis: SOURCE_REPEATED
+    confidence: high
+    severity: REVIEW
+    source_ids: [BOOK-ABRAMOVA-2017, BOOK-MOTYAKINA-LOPATIN-2016]
+    source_status: DOMAIN_CONVENTION
+    autofix: never
+
+  LDB-006:
+    title: "Установленная профессиональная терминология сохраняется"
+    scope: [official-admin, normative, normative/legislation, contractual, legal-procedural]
+    level: term
+    basis: PROJECT_REFINED
+    confidence: high
+    severity: REVIEW
+    source_ids: [BOOK-ABRAMOVA-2017, BOOK-MOTYAKINA-LOPATIN-2016]
+    source_status: DOMAIN_CONVENTION
+    protects_from: [generic_synonymize_repetition, generic_pronoun_substitution]
+    autofix: never
+
+  LDB-007:
+    title: "Структурная иерархия несёт смысл"
+    scope: [normative, normative/legislation, contractual, legal-procedural]
+    level: document
+    basis: PROJECT_REFINED
+    confidence: medium-high
+    severity: REVIEW
+    source_ids: [BOOK-ABRAMOVA-2017]
+    source_status: DOMAIN_CONVENTION
+    autofix: never
+
+  LDB-008:
+    title: "Модальность соответствует юридической функции"
+    scope: [official-admin, normative, normative/legislation]
+    level: clause
+    basis: PROJECT_REFINED
+    confidence: medium-high
+    severity: REVIEW
+    source_ids: [BOOK-BEGLOVA-2019]
+    source_status: DOMAIN_CONVENTION
+    protects_from: [generic_modality_simplification]
+    autofix: never
+
+  LDB-009:
+    title: "Неопределённые ссылки проверяются там, где требуется точность"
+    scope: [official-admin, normative, normative/legislation, contractual, legal-procedural]
+    level: phrase
+    basis: PROJECT_REFINED
+    confidence: high
+    severity: REVIEW
+    source_ids: [BOOK-MARYEVA-2015-2]
+    source_status: DOMAIN_CONVENTION
+    autofix: never
+
+  LDB-010:
+    title: "Прямой порядок слов — prior регистра, не жёсткая норма"
+    scope: [official-admin, normative, normative/legislation]
+    level: sentence
+    basis: PROJECT_REFINED
+    confidence: medium
+    severity: STYLE_WARNING
+    source_ids: [BOOK-NOVOSELTSEVA-2018]
+    source_status: DOMAIN_CONVENTION
+    conflicts_with: [generic_information_structure]
+    autofix: never
+
+  LDB-011:
+    title: "Формальные требования старых книг историчны до перепроверки"
+    scope: [official-admin, normative, normative/legislation, contractual, legal-procedural]
+    level: source-governance
+    basis: PROJECT_DERIVED
+    confidence: high
+    severity: HARD_GATE
+    source_ids: [BOOK-MARYEVA-2015-2, BOOK-ABRAMOVA-2017, BOOK-SOLOVEVA-2019, BOOK-MOTYAKINA-LOPATIN-2016, BOOK-MIKHAYLOVA-2018, BOOK-NOVOSELTSEVA-2018, BOOK-BEGLOVA-2019]
+    source_status: PROJECT_DERIVED
+    autofix: never
