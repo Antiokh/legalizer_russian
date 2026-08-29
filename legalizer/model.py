@@ -24,6 +24,7 @@ class ResolvedProfile:
     active_rules: dict[str, dict[str, Any]]
     protected_classes: set[str] = field(default_factory=set)
     disabled_external_rules: set[str] = field(default_factory=set)
+    disabled_for_protected_spans: set[str] = field(default_factory=set)
     external_severity: dict[str, str] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
     inactive_rules: dict[str, str] = field(default_factory=dict)
@@ -34,6 +35,7 @@ class ResolvedProfile:
             "active_rules": self.active_rules,
             "protected_classes": sorted(self.protected_classes),
             "disabled_external_rules": sorted(self.disabled_external_rules),
+            "disabled_for_protected_spans": sorted(self.disabled_for_protected_spans),
             "external_severity": dict(sorted(self.external_severity.items())),
             "notes": self.notes,
             "inactive_rules": self.inactive_rules,
