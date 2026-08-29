@@ -1,0 +1,122 @@
+version: 1
+
+profiles:
+  official-admin:
+    description: "Письма, записки, справки, акты, протоколы, приказы и другая административно-канцелярская документация."
+    enable:
+      - DOC-M01
+      - DOC-M02
+      - DOC-M05
+      - LDB-001
+      - LDB-002
+      - LDB-003
+      - LDB-004
+      - LDB-005
+      - LDB-006
+      - LDB-008
+      - LDB-009
+      - LDB-010
+    protect:
+      - defined_terms
+      - conventional_document_cliches
+    downgrade:
+      generic_passive_voice: INFO
+      generic_nominalization: INFO
+      generic_sentence_length: INFO
+    disable_for_protected_spans:
+      - generic_synonymize_repetition
+      - generic_cliche_rewrite
+
+  normative:
+    description: "Положения, правила, инструкции, регламенты, локальные нормативные акты."
+    enable:
+      - DOC-M03
+      - DOC-M04
+      - DOC-M05
+      - DOC-N04
+      - DOC-P01
+      - LDB-001
+      - LDB-002
+      - LDB-003
+      - LDB-004
+      - LDB-005
+      - LDB-006
+      - LDB-007
+      - LDB-008
+      - LDB-009
+      - LDB-010
+      - LDB-011
+    protect:
+      - defined_terms
+      - legal_modality
+      - conventional_document_cliches
+    disable_for_protected_spans:
+      - generic_synonymize_repetition
+      - generic_modality_simplification
+      - generic_cliche_rewrite
+
+  normative/legislation:
+    extends: normative
+    description: "Законопроектная юридическая техника."
+    enable:
+      - DOC-N01
+      - DOC-N02
+      - DOC-N03
+    override:
+      DOC-N01:
+        severity: REVIEW
+      DOC-N02:
+        severity: REVIEW
+    notes:
+      - "Правила преамбулы и законодательной иерархии не применяются к договорам и корпоративным политикам."
+
+  contractual:
+    description: "Договоры, соглашения, приложения, оферты и другие договорные документы."
+    enable:
+      - DOC-M05
+      - DOC-N04
+      - DOC-P01
+      - DOC-P02
+      - LDB-001
+      - LDB-002
+      - LDB-003
+      - LDB-005
+      - LDB-006
+      - LDB-007
+      - LDB-009
+      - LDB-011
+    protect:
+      - defined_terms
+      - party_names
+      - obligation_modality
+      - cross_references
+    disable_for_protected_spans:
+      - generic_synonymize_repetition
+      - generic_pronoun_substitution
+      - generic_modality_simplification
+    downgrade:
+      generic_passive_voice: INFO
+      generic_nominalization: INFO
+      generic_sentence_length: INFO
+
+  legal-procedural:
+    description: "Претензии, иски, отзывы, ходатайства и другая процессуальная документация."
+    enable:
+      - DOC-N04
+      - DOC-P01
+      - LDB-001
+      - LDB-002
+      - LDB-003
+      - LDB-005
+      - LDB-006
+      - LDB-007
+      - LDB-009
+      - LDB-011
+    protect:
+      - participant_names
+      - legal_qualification_terms
+      - requested_relief
+      - cross_references
+    notes:
+      - "Не навязывать универсальную структуру процессуального документа без источника для конкретного вида документа и применимого процесса."
+      - "Контролируемая оценочность/эмоциональность допустима в отдельных жанрах и не блокируется общим правилом нейтральности."
