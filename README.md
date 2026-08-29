@@ -19,12 +19,16 @@
 ## Быстрый запуск
 
 ```bash
-python -m pip install -e '.[dev]'
+python -m pip install '.[dev]'
+legalizer doctor
 legalizer resolve --profile contractual
 legalizer check contract.md --profile contractual
+legalizer protect contract.md --profile contractual --json
 legalizer check policy.md --profile normative --date 2026-08-29 --json
 legalizer sources --date 2026-08-29
 ```
+
+`doctor` проверяет связность профилей, source registry и runtime implementations. `protect` возвращает точные позиции фрагментов, которые профиль запрещает обычному редактору синонимизировать или упрощать. Сейчас механически локализуются введённые термины; остальные классы защиты остаются явно перечислены в `unresolved_classes`, пока для них нет надёжного локатора.
 
 Коды выхода `check`:
 
@@ -36,7 +40,8 @@ legalizer sources --date 2026-08-29
 Первый механический runtime включает:
 
 - resolver наследования профилей и overrides;
-- `protect` / `disable_for_protected_spans` для интеграции с обычными редакторами;
+- исполняемый `protect` / `disable_for_protected_spans` для интеграции с обычными редакторами;
+- registry линтеров вместо profile-specific `if` в engine;
 - фильтрацию правил по юрисдикции, статусу и дате источника;
 - `DOC-M05`: использование определённого термина до введения и повторное введение alias;
 - `DOC-N01`: нормативное предписание или дефиниция внутри явно размеченной преамбулы законопроекта;
@@ -50,7 +55,7 @@ legalizer sources --date 2026-08-29
 ## Архитектура
 
 ```text
-legalizer/            Python runtime и CLI
+legalizer/            Python runtime, registry, protection API и CLI
 core/                 схема правил и реестр источников
 profiles/             включение/отключение/переопределение правил по жанрам
 rules/                атомарные правила

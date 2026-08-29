@@ -18,31 +18,68 @@ WORD_CHAR = r"A-Za-zА-Яа-яЁё0-9_"
 class DefinedTerm:
     alias: str
     offset: int
+    alias_start: int
+    alias_end: int
     line: int
     column: int
 
 
-def _normalize_alias(value: str) -> str:
+def normalize_alias(value: str) -> str:
     value = value.strip()
     if value.startswith("«") and value.endswith("»"):
         value = value[1:-1].strip()
     return re.sub(r"\s+", " ", value)
 
 
+def alias_pattern(alias: str) -> re.Pattern[str]:
+    escaped = re.escape(alias).replace(r"\ ", r"\s+")
+    return re.compile(rf"(?<![{WORD_CHAR}]){escaped}(?![{WORD_CHAR}])")
+
+
 def extract_defined_terms(text: str) -> list[DefinedTerm]:
     terms: list[DefinedTerm] = []
     for match in INTRO_RE.finditer(text):
-        alias = _normalize_alias(match.group("alias"))
+        alias = normalize_alias(match.group("alias"))
         if not alias:
             continue
-        line, column = line_column(text, match.start("alias"))
-        terms.append(DefinedTerm(alias=alias, offset=match.start(), line=line, column=column))
+        raw_start = match.start("alias")
+        raw_end = match.end("alias")
+        raw = match.group("alias")
+        left_trim = len(raw) - len(raw.lstrip())
+        right_trim = len(raw) - len(raw.rstrip())
+        alias_start = raw_start + left_trim
+        alias_end = raw_end - right_trim
+        if raw.strip().startswith("«") and raw.strip().endswith("»"):
+            stripped_start = raw_start + left_trim
+            alias_start = stripped_start + 1
+            alias_end -= 1
+        line, column = line_column(text, alias_start)
+        terms.append(
+            DefinedTerm(
+                alias=alias,
+                offset=match.start(),
+                alias_start=alias_start,
+                alias_end=alias_end,
+                line=line,
+                column=column,
+            )
+        )
     return terms
 
 
-def _alias_pattern(alias: str) -> re.Pattern[str]:
-    escaped = re.escape(alias).replace(r"\ ", r"\s+")
-    return re.compile(rf"(?<![{WORD_CHAR}]){escaped}(?![{WORD_CHAR}])")
+def defined_term_occurrences(text: str) -> list[tuple[DefinedTerm, re.Match[str]]]:
+    occurrences: list[tuple[DefinedTerm, re.Match[str]]] = []
+    seen: set[tuple[str, int, int]] = set()
+    for term in extract_defined_terms(text):
+        pattern = alias_pattern(term.alias)
+        for match in pattern.finditer(text):
+            key = (term.alias.casefold(), match.start(), match.end())
+            if key in seen:
+                continue
+            seen.add(key)
+            occurrences.append((term, match))
+    occurrences.sort(key=lambda item: (item[1].start(), item[1].end(), item[0].alias.casefold()))
+    return occurrences
 
 
 def lint_defined_terms(text: str, severity: str = "REVIEW") -> list[Finding]:
@@ -72,7 +109,7 @@ def lint_defined_terms(text: str, severity: str = "REVIEW") -> list[Finding]:
         first_definition[key] = term
 
         prefix = text[: term.offset]
-        prior = list(_alias_pattern(term.alias).finditer(prefix))
+        prior = list(alias_pattern(term.alias).finditer(prefix))
         if prior:
             occurrence = prior[-1]
             line, column = line_column(text, occurrence.start())
