@@ -2,7 +2,13 @@ from __future__ import annotations
 
 from datetime import date
 
-from .linters import lint_defined_terms, lint_internal_references, lint_source_governance
+from .linters import (
+    lint_defined_terms,
+    lint_internal_references,
+    lint_legislation_hierarchy,
+    lint_legislation_preamble,
+    lint_source_governance,
+)
 from .model import Finding, ResolvedProfile
 from .resolver import resolve_profile
 
@@ -33,6 +39,22 @@ def check_text(
             lint_defined_terms(
                 text,
                 severity=resolved.active_rules["DOC-M05"].get("severity", "REVIEW"),
+            )
+        )
+
+    if "DOC-N01" in resolved.active_rules:
+        findings.extend(
+            lint_legislation_preamble(
+                text,
+                severity=resolved.active_rules["DOC-N01"].get("severity", "REVIEW"),
+            )
+        )
+
+    if "DOC-N02" in resolved.active_rules:
+        findings.extend(
+            lint_legislation_hierarchy(
+                text,
+                severity=resolved.active_rules["DOC-N02"].get("severity", "REVIEW"),
             )
         )
 
