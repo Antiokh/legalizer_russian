@@ -8,6 +8,7 @@ from .linters import (
     lint_legislation_hierarchy,
     lint_legislation_preamble,
     lint_source_governance,
+    lint_vague_time_references,
 )
 from .model import Finding, ResolvedProfile
 from .resolver import resolve_profile
@@ -63,6 +64,14 @@ def check_text(
             lint_internal_references(
                 text,
                 severity=resolved.active_rules["DOC-N04"].get("severity", "HARD_GATE"),
+            )
+        )
+
+    if "LDB-009" in resolved.active_rules:
+        findings.extend(
+            lint_vague_time_references(
+                text,
+                severity=resolved.active_rules["LDB-009"].get("severity", "REVIEW"),
             )
         )
 
