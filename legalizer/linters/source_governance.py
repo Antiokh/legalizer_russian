@@ -16,7 +16,15 @@ def lint_source_governance(
 ) -> list[Finding]:
     findings: list[Finding] = []
     for rule_id, rule in resolved.active_rules.items():
-        for source_id in rule.get("source_ids") or []:
+        source_ids = rule.get("source_ids") or []
+        if not source_ids:
+            continue
+
+        applicable: list[str] = []
+        known: list[str] = []
+        inactive_reasons: list[str] = []
+
+        for source_id in source_ids:
             source = sources.get(source_id)
             if source is None:
                 findings.append(
@@ -24,22 +32,36 @@ def lint_source_governance(
                         rule_id="DOC-P01",
                         severity=severity,
                         message=f"Для источника {source_id}, используемого правилом {rule_id}, нет метаданных применимости.",
-                        meta={"affected_rule": rule_id, "source_id": source_id},
+                        meta={"affected_rule": rule_id, "source_id": source_id, "problem": "missing_source_metadata"},
                     )
                 )
                 continue
+
+            known.append(source_id)
             ok, reason = source_applicability(
                 source,
                 document_date=document_date,
                 jurisdiction=jurisdiction,
             )
-            if not ok:
-                findings.append(
-                    Finding(
-                        rule_id="DOC-P01",
-                        severity=severity,
-                        message=f"Правило {rule_id} опирается на неприменимый источник {source_id}: {reason}.",
-                        meta={"affected_rule": rule_id, "source_id": source_id},
-                    )
+            if ok:
+                applicable.append(source_id)
+            elif reason:
+                inactive_reasons.append(f"{source_id}: {reason}")
+
+        # A rule may cite several editions or supporting sources. One inactive
+        # source does not invalidate the rule if another registered source is
+        # applicable for the document date/jurisdiction.
+        if known and not applicable:
+            findings.append(
+                Finding(
+                    rule_id="DOC-P01",
+                    severity=severity,
+                    message=(
+                        f"У активного правила {rule_id} не осталось применимых зарегистрированных источников: "
+                        + "; ".join(inactive_reasons)
+                    ),
+                    meta={"affected_rule": rule_id, "problem": "no_applicable_source"},
                 )
+            )
+
     return findings
