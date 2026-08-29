@@ -1,5 +1,5 @@
 version: 1
-snapshot_date: 2026-08-28
+snapshot_date: 2026-08-29
 
 sources:
   DOC-GOST-2025:
@@ -21,10 +21,11 @@ sources:
 
   DOC-ROSARCHIVE-91-2026:
     title: "Изменения к приказу Росархива № 71, приказ № 91 от 09.07.2026"
-    status: PENDING_CHANGE
+    status: CURRENT_NORM
     jurisdiction: RU
     registered_at: 2026-08-12
-    status_checked_at: 2026-08-28
+    effective_from: 2026-08-23
+    status_checked_at: 2026-08-29
 
   DOC-ROSARCHIVE-199:
     title: "Методические рекомендации по разработке инструкций по делопроизводству"
