@@ -23,6 +23,21 @@ def test_missing_internal_point_reference_is_hard_gate():
     assert findings[0].meta["target"] == "4.7"
 
 
+def test_missing_point_reference_with_trailing_period_is_detected():
+    text = "Порядок расчёта установлен в пункте 4.7. настоящего Договора.\n"
+    findings = lint_internal_references(text)
+    assert len(findings) == 1
+    assert findings[0].meta["target"] == "4.7"
+
+
+def test_missing_article_reference_with_trailing_period_is_detected():
+    text = "Ограничение установлено в статье 7. настоящего Положения.\n"
+    findings = lint_internal_references(text)
+    assert len(findings) == 1
+    assert findings[0].meta["reference_kind"] == "article"
+    assert findings[0].meta["target"] == "7"
+
+
 def test_external_reference_is_not_treated_as_internal():
     text = "Требование предусмотрено пунктом 4 соглашения от 10 августа 2026 года.\n"
     assert lint_internal_references(text) == []
