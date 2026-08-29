@@ -8,13 +8,24 @@ from ..text import line_column, line_excerpt
 
 
 ORDER_MARKER_RE = re.compile(r"(?im)^\s*ПРИКАЗЫВАЮ\s*:?[ \t]*$")
-NUMBERED_DIRECTIVE_RE = re.compile(
-    r"(?m)^\s*(?P<num>\d+(?:\.\d+)*)[.)]?\s+(?P<body>\S.*)$"
+ORDER_STOP_RE = re.compile(
+    r"(?im)^\s*(?:ПРИЛОЖЕНИЕ(?:\s+№?\s*\d+)?|УТВЕРЖДЕНО|УТВЕРЖДАЮ)\b.*$"
 )
-INFINITIVE_RE = re.compile(
-    r"\b[А-Яа-яЁё][А-Яа-яЁё-]{2,}(?:ть(?:ся)?|ти(?:сь)?|чь(?:ся)?)\b",
+# Restrict runtime checking to top-level numbered directives. Nested numbering
+# often belongs to an attached regulation rather than to the order itself.
+NUMBERED_DIRECTIVE_RE = re.compile(
+    r"(?m)^\s*(?P<num>\d+)[.)]\s+(?P<body>\S.*)$"
+)
+INFINITIVE_CANDIDATE_RE = re.compile(
+    r"\b(?:"
+    r"[А-Яа-яЁё-]{2,}(?:ать|ять|еть|ить|уть|ыть|оть)(?:ся)?"
+    r"|внести|ввести|провести|довести|привести|перевести|вывести|отвести"
+    r"|принести|донести|занести|нести|вести|идти|прийти|найти|войти|выйти"
+    r"|перейти|подойти|уйти|пройти|сойти|дойти"
+    r")\b",
     re.IGNORECASE,
 )
+_NON_VERB_CANDIDATES = {"печать", "память", "кровать", "благодать"}
 
 
 @dataclass(slots=True)
@@ -25,17 +36,23 @@ class DirectiveParagraph:
     text: str
 
 
+def _is_infinitive_candidate(match: re.Match[str]) -> bool:
+    return match.group(0).casefold() not in _NON_VERB_CANDIDATES
+
+
 def extract_order_directives(text: str) -> list[DirectiveParagraph]:
-    """Extract numbered directive paragraphs after an explicit ПРИКАЗЫВАЮ marker."""
+    """Extract top-level numbered directive paragraphs after an explicit ПРИКАЗЫВАЮ marker."""
 
     marker = ORDER_MARKER_RE.search(text)
     if marker is None:
         return []
 
-    matches = [match for match in NUMBERED_DIRECTIVE_RE.finditer(text, marker.end())]
+    stop = ORDER_STOP_RE.search(text, marker.end())
+    scan_end = stop.start() if stop else len(text)
+    matches = list(NUMBERED_DIRECTIVE_RE.finditer(text, marker.end(), scan_end))
     directives: list[DirectiveParagraph] = []
     for index, match in enumerate(matches):
-        end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
+        end = matches[index + 1].start() if index + 1 < len(matches) else scan_end
         directives.append(
             DirectiveParagraph(
                 number=match.group("num"),
@@ -48,21 +65,26 @@ def extract_order_directives(text: str) -> list[DirectiveParagraph]:
 
 
 def directive_infinitive_occurrences(text: str) -> list[tuple[DirectiveParagraph, re.Match[str]]]:
-    """Return infinitive-like action tokens with absolute offsets represented by match wrappers."""
+    """Return conservative infinitive-like action tokens inside parsed order directives."""
 
     occurrences: list[tuple[DirectiveParagraph, re.Match[str]]] = []
     for directive in extract_order_directives(text):
-        for match in INFINITIVE_RE.finditer(text, directive.start, directive.end):
-            occurrences.append((directive, match))
+        for match in INFINITIVE_CANDIDATE_RE.finditer(text, directive.start, directive.end):
+            if _is_infinitive_candidate(match):
+                occurrences.append((directive, match))
     return occurrences
 
 
 def lint_order_directive_infinitives(text: str, severity: str = "REVIEW") -> list[Finding]:
-    """Review numbered order directives that contain no infinitive-like action."""
+    """Review parsed order directives that contain no conservative infinitive-like action."""
 
+    by_directive = {
+        directive.number
+        for directive, _ in directive_infinitive_occurrences(text)
+    }
     findings: list[Finding] = []
     for directive in extract_order_directives(text):
-        if INFINITIVE_RE.search(text, directive.start, directive.end):
+        if directive.number in by_directive:
             continue
         line, column = line_column(text, directive.start)
         findings.append(
@@ -71,14 +93,14 @@ def lint_order_directive_infinitives(text: str, severity: str = "REVIEW") -> lis
                 severity=severity,
                 message=(
                     f"В распорядительном пункте {directive.number} после «ПРИКАЗЫВАЮ» "
-                    "не найдено действие в инфинитиве; проверьте формулировку поручения."
+                    "не найдено надёжно распознаваемое действие в инфинитиве; проверьте формулировку поручения."
                 ),
                 line=line,
                 column=column,
                 evidence=line_excerpt(text, directive.start),
                 meta={
                     "directive": directive.number,
-                    "parser_confidence": "high-when-marker-and-numbering-present",
+                    "parser_confidence": "conservative-top-level-order-parser",
                 },
             )
         )
