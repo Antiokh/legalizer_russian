@@ -231,15 +231,16 @@ rules:
     autofix: never
 
   LDB-010:
-    title: "Прямой порядок слов — prior регистра, не жёсткая норма"
-    scope: [official-admin, normative, normative/legislation]
+    title: "Прямой порядок слов следует теме и реме, а не шаблону SVO"
+    scope: [official-admin, normative, normative/legislation, contractual, legal-procedural]
     level: sentence
     basis: PROJECT_REFINED
-    confidence: medium
+    confidence: high
     severity: STYLE_WARNING
-    source_ids: [BOOK-NOVOSELTSEVA-2018]
+    source_ids: [BOOK-ABRAMOVA-2017, BOOK-NOVOSELTSEVA-2018]
     source_status: DOMAIN_CONVENTION
-    conflicts_with: [generic_information_structure]
+    conflicts_with: [generic_information_structure, generic_svo_normalization]
+    protects_from: [generic_svo_normalization]
     autofix: never
 
   LDB-011:
@@ -251,4 +252,75 @@ rules:
     severity: HARD_GATE
     source_ids: [BOOK-MARYEVA-2015-2, BOOK-ABRAMOVA-2017, BOOK-SOLOVEVA-2019, BOOK-MOTYAKINA-LOPATIN-2016, BOOK-MIKHAYLOVA-2018, BOOK-NOVOSELTSEVA-2018, BOOK-BEGLOVA-2019]
     source_status: PROJECT_DERIVED
+    autofix: never
+
+  LDB-012:
+    title: "Нанизывание творительных форм проверяется на двусмысленное прикрепление"
+    scope: [official-admin, normative, normative/legislation, contractual, legal-procedural]
+    level: sentence
+    basis: PROJECT_REFINED
+    confidence: medium-high
+    severity: REVIEW
+    source_ids: [BOOK-ABRAMOVA-2017]
+    source_status: DOMAIN_CONVENTION
+    trigger: "nominalization followed by adjacent likely instrumental nouns ending in -ом/-ем"
+    autofix: never
+
+  LDB-013:
+    title: "Сложность предложения оценивается по ясности связей, а не по длине"
+    scope: [official-admin, normative, normative/legislation, contractual, legal-procedural]
+    level: sentence
+    basis: PROJECT_REFINED
+    confidence: medium-high
+    severity: INFO
+    source_ids: [BOOK-ABRAMOVA-2017]
+    source_status: DOMAIN_CONVENTION
+    protects_from: [generic_sentence_split, generic_sentence_length]
+    autofix: never
+
+  LDB-014:
+    title: "Инфинитивная директива — жанровый признак приказа, а не общий официальный шаблон"
+    scope: [official-admin/order]
+    level: clause
+    basis: PROJECT_REFINED
+    confidence: high
+    severity: INFO
+    source_ids: [BOOK-ABRAMOVA-2017]
+    source_status: DOMAIN_CONVENTION
+    protects_from: [generic_imperative_rewrite]
+    autofix: never
+
+  ADM-LETTER-001:
+    title: "Деловое письмо строится функционально; аналитическая основная часть не обязательна"
+    scope: [official-admin/letter]
+    level: document
+    basis: SOURCE_REPEATED
+    confidence: high
+    severity: INFO
+    source_ids: [BOOK-MARYEVA-2015-2, BOOK-ABRAMOVA-2017]
+    source_status: DOMAIN_CONVENTION
+    autofix: never
+
+  ADM-ORDER-001:
+    title: "Распорядительный пункт приказа содержит действие в инфинитиве"
+    scope: [official-admin/order]
+    level: paragraph
+    basis: SOURCE_DIRECT
+    confidence: high
+    severity: REVIEW
+    source_ids: [BOOK-ABRAMOVA-2017]
+    source_status: DOMAIN_CONVENTION
+    trigger: "numbered directive after an explicit ПРИКАЗЫВАЮ marker has no infinitive-like action"
+    protects_from: [generic_imperative_rewrite]
+    autofix: never
+
+  ADM-ACT-001:
+    title: "Акт отделяет основание или событие от установленных фактов и выводов"
+    scope: [official-admin/act]
+    level: document
+    basis: SOURCE_DIRECT
+    confidence: high
+    severity: REVIEW
+    source_ids: [BOOK-ABRAMOVA-2017]
+    source_status: DOMAIN_CONVENTION
     autofix: never
