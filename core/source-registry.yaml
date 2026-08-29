@@ -1,0 +1,46 @@
+version: 1
+snapshot_date: 2026-08-29
+
+sources:
+  DOC-GOST-2025:
+    title: "ГОСТ Р 7.0.97-2025"
+    status: CURRENT_NORM
+    jurisdiction: RU
+    effective_from: 2025-08-18
+
+  DOC-VNIIDAD-GOST-2026:
+    title: "Методические рекомендации ВНИИДАД по ГОСТ Р 7.0.97-2025"
+    status: METHODICAL
+    jurisdiction: RU
+    published_at: 2026-04-17
+
+  DOC-ROSARCHIVE-71:
+    title: "Правила делопроизводства, приказ Росархива № 71"
+    status: CURRENT_NORM
+    jurisdiction: RU
+
+  DOC-ROSARCHIVE-91-2026:
+    title: "Изменения к приказу Росархива № 71, приказ № 91 от 09.07.2026"
+    status: CURRENT_NORM
+    jurisdiction: RU
+    registered_at: 2026-08-12
+    effective_from: 2026-08-23
+    status_checked_at: 2026-08-29
+
+  DOC-ROSARCHIVE-199:
+    title: "Методические рекомендации по разработке инструкций по делопроизводству"
+    status: METHODICAL
+    jurisdiction: RU
+
+  DOC-DUMA-LEGALTECH-2021:
+    title: "Методические рекомендации по юридико-техническому оформлению законопроектов, редакция 2021"
+    status: METHODICAL
+    jurisdiction: RU
+
+  BOOK-MARYEVA-2015-2: {status: DOMAIN_CONVENTION, jurisdiction: RU}
+  BOOK-ABRAMOVA-2017: {status: DOMAIN_CONVENTION, jurisdiction: RU}
+  BOOK-SOLOVEVA-2019: {status: DOMAIN_CONVENTION, jurisdiction: RU}
+  BOOK-MOTYAKINA-LOPATIN-2016: {status: DOMAIN_CONVENTION, jurisdiction: RU}
+  BOOK-MIKHAYLOVA-2018: {status: DOMAIN_CONVENTION, jurisdiction: RU}
+  BOOK-NOVOSELTSEVA-2018: {status: DOMAIN_CONVENTION, jurisdiction: RU}
+  BOOK-BEGLOVA-2019: {status: DOMAIN_CONVENTION, jurisdiction: RU}

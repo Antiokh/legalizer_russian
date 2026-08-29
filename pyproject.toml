@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "legalizer-russian"
+version = "0.1.0"
+description = "Profile-aware linter for Russian legal and official documents"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["PyYAML>=6.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+legalizer = "legalizer.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["legalizer*"]
+
+[tool.setuptools.data-files]
+"share/legalizer_russian/rules" = ["rules/rules.yaml"]
+"share/legalizer_russian/profiles" = ["profiles/profiles.yaml"]
+"share/legalizer_russian/core" = ["core/source-registry.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

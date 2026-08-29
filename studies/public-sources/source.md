@@ -1,6 +1,6 @@
 # Public sources — legal and official documents
 
-Snapshot: 2026-08-28.
+Snapshot: 2026-08-29.
 
 Исследование открытой нормативно-методической базы для профессиональных русскоязычных документов. Для каждого правила должен быть указан конкретный источник и его область действия.
 
@@ -35,7 +35,8 @@ Snapshot: 2026-08-28.
 Приказ Росархива от 09.07.2026 № 91 о внесении изменений в приказ № 71.
 
 - registered: 2026-08-12, Минюст № 87817
-- status checked 2026-08-28: `PENDING_CHANGE`; reference system marked it not yet effective
+- effective: 2026-08-23
+- status checked 2026-08-29: `CURRENT_NORM`
 - reference: https://www.consultant.ru/document/cons_doc_LAW_541782/
 
 ## DOC-ROSARCHIVE-199
