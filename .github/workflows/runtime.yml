@@ -23,9 +23,18 @@ jobs:
       - run: cd /tmp && legalizer resolve --profile contractual --json > /tmp/resolved.json
       - run: cd /tmp && legalizer resolve --profile official-admin/order --json > /tmp/order-profile.json
       - run: cd /tmp && legalizer sources --date 2026-08-29 --json > /tmp/sources.json
-      - run: printf 'ООО «Альфа», именуемое в дальнейшем «Заказчик», заключает договор.\nЗаказчик обязан оплатить услуги и вправе запросить отчёт.\n' > /tmp/contract.md
+      - run: printf 'ООО «Альфа», именуемое в дальнейшем «Заказчик», и ООО «Бета», именуемое в дальнейшем «Исполнитель», заключили договор.\nЗаказчик обязан оплатить услуги в течение 5 рабочих дней с даты получения счёта и вправе запросить отчёт.\n' > /tmp/contract.md
       - run: cd /tmp && legalizer check /tmp/contract.md --profile contractual --json > /tmp/contract-check.json
       - run: cd /tmp && legalizer protect /tmp/contract.md --profile contractual --json > /tmp/contract-protection.json
+      - run: printf 'ООО «Альфа», именуемое в дальнейшем «Заказчик», и ООО «Бета», именуемое в дальнейшем «Исполнитель», заключили договор.\nОбязан оплатить услуги в течение 5 рабочих дней.\n' > /tmp/bad-contract.md
+      - name: Expect subject/deadline review findings
+        run: |
+          cd /tmp
+          set +e
+          legalizer check /tmp/bad-contract.md --profile contractual --json > /tmp/bad-contract-check.json
+          code=$?
+          set -e
+          test "$code" -eq 1
       - run: printf 'ПРИКАЗЫВАЮ:\n1. Директору подготовить предложения.\n2. Бухгалтерии открыть счёт.\n' > /tmp/order.md
       - run: cd /tmp && legalizer check /tmp/order.md --profile official-admin/order --json > /tmp/order-check.json
       - run: cd /tmp && legalizer protect /tmp/order.md --profile official-admin/order --json > /tmp/order-protection.json
