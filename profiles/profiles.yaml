@@ -19,9 +19,12 @@ profiles:
       - LDB-010
       - LDB-012
       - LDB-013
+      - LDB-016
     protect:
       - defined_terms
       - legal_modality
+      - relative_deadline
+      - deadline_anchor
       - conventional_document_cliches
     downgrade:
       generic_passive_voice: INFO
@@ -30,6 +33,7 @@ profiles:
     disable_for_protected_spans:
       - generic_synonymize_repetition
       - generic_modality_simplification
+      - generic_time_simplification
       - generic_cliche_rewrite
 
   official-admin/letter:
@@ -84,11 +88,14 @@ profiles:
       - LDB-012
       - LDB-013
       - LDB-015
+      - LDB-016
     protect:
       - defined_terms
       - legal_modality
       - condition_scope_marker
       - exception_scope_marker
+      - relative_deadline
+      - deadline_anchor
       - conventional_document_cliches
       - functional_long_syntax
     downgrade:
@@ -96,6 +103,7 @@ profiles:
     disable_for_protected_spans:
       - generic_synonymize_repetition
       - generic_modality_simplification
+      - generic_time_simplification
       - generic_cliche_rewrite
       - generic_sentence_split
 
@@ -137,19 +145,24 @@ profiles:
       - LDB-012
       - LDB-013
       - LDB-015
+      - LDB-016
       - CTR-001
+      - CTR-002
     protect:
       - defined_terms
       - party_names
       - obligation_modality
       - condition_scope_marker
       - exception_scope_marker
+      - relative_deadline
+      - deadline_anchor
       - cross_references
       - functional_long_syntax
     disable_for_protected_spans:
       - generic_synonymize_repetition
       - generic_pronoun_substitution
       - generic_modality_simplification
+      - generic_time_simplification
       - generic_sentence_split
     downgrade:
       generic_passive_voice: INFO
@@ -158,6 +171,8 @@ profiles:
     notes:
       - "Сильные формулы обязанности/права/запрета защищаются от упрощения, но токен «может» сам по себе не классифицируется как право."
       - "Условия и исключения не переставлять между предписаниями без проверки их области действия."
+      - "Если обязанная сторона выражена только контекстом, не подставлять её автоматически: сначала проверить структуру договора."
+      - "Относительный срок не переписывать без сохранения события, от которого он исчисляется."
 
   legal-procedural:
     description: "Претензии, иски, отзывы, ходатайства и другая процессуальная документация."
@@ -175,15 +190,19 @@ profiles:
       - LDB-011
       - LDB-012
       - LDB-013
+      - LDB-016
     protect:
       - participant_names
       - legal_qualification_terms
       - requested_relief
       - cross_references
+      - relative_deadline
+      - deadline_anchor
       - functional_long_syntax
     downgrade:
       generic_sentence_length: INFO
     disable_for_protected_spans:
+      - generic_time_simplification
       - generic_sentence_split
     notes:
       - "Не навязывать универсальную структуру процессуального документа без источника для конкретного вида документа и применимого процесса."

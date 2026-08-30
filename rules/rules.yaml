@@ -303,6 +303,19 @@ rules:
     protects_from: [generic_modality_simplification, generic_sentence_split]
     autofix: never
 
+  LDB-016:
+    title: "Относительный срок сохраняет однозначную точку отсчёта"
+    scope: [official-admin, normative, normative/legislation, contractual, legal-procedural]
+    level: clause
+    basis: PROJECT_REFINED
+    confidence: medium-high
+    severity: REVIEW
+    source_ids: [BOOK-MARYEVA-2015-2, BOOK-ABRAMOVA-2017]
+    source_status: DOMAIN_CONVENTION
+    trigger: "relative duration deadline lacks an explicit local anchor such as с даты / со дня / с момента / после / до"
+    protects_from: [generic_time_simplification]
+    autofix: never
+
   ADM-LETTER-001:
     title: "Деловое письмо строится функционально; аналитическая основная часть не обязательна"
     scope: [official-admin/letter]
@@ -349,4 +362,17 @@ rules:
     source_status: DOMAIN_CONVENTION
     trigger: "explicit «именуем… в дальнейшем X» role is reused before introduction or introduced twice"
     protects_from: [generic_synonymize_repetition, generic_pronoun_substitution]
+    autofix: never
+
+  CTR-002:
+    title: "Личная формула обязанности должна иметь однозначно определимый субъект"
+    scope: [contractual]
+    level: clause
+    basis: PROJECT_REFINED
+    confidence: medium-high
+    severity: REVIEW
+    source_ids: [BOOK-MARYEVA-2015-2, BOOK-BEGLOVA-2019, BOOK-ABRAMOVA-2017]
+    source_status: DOMAIN_CONVENTION
+    trigger: "explicit party aliases exist, but a strong personal обязан/обязуется formula has no locally expressed party subject"
+    protects_from: [generic_pronoun_substitution, generic_subject_deletion]
     autofix: never

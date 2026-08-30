@@ -56,6 +56,22 @@ def test_contract_condition_and_exception_markers_are_protected():
     assert "exception_scope_marker" not in result.unresolved_classes
 
 
+def test_relative_deadline_and_anchor_are_protected():
+    text = (
+        "Заказчик обязан оплатить услуги в течение 5 рабочих дней "
+        "с даты получения счёта.\n"
+    )
+    result = collect_protected_spans(text, _resolved("contractual"))
+    deadlines = [span for span in result.spans if span.kind == "relative_deadline"]
+    anchors = [span for span in result.spans if span.kind == "deadline_anchor"]
+    assert [span.text for span in deadlines] == ["в течение 5 рабочих дней"]
+    assert [span.text.casefold() for span in anchors] == ["с даты"]
+    assert deadlines[0].meta["has_local_anchor"] is True
+    assert "relative_deadline" not in result.unresolved_classes
+    assert "deadline_anchor" not in result.unresolved_classes
+    assert "generic_time_simplification" in result.disabled_rules_on_spans
+
+
 def test_order_directive_infinitives_are_located_and_protected():
     text = (
         "ПРИКАЗЫВАЮ:\n"
