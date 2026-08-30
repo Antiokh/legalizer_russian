@@ -8,10 +8,15 @@ from ..text import line_column, line_excerpt
 
 
 RESPONSIBILITY_HEADING_RE = re.compile(
-    r"(?im)^\s*(?:#{1,6}\s*)?(?:\d+(?:\.\d+)*[.)]?\s*)?"
+    r"(?im)^\s*(?:(?P<markdown>#{1,6})\s*)?"
+    r"(?:(?P<number>\d+(?:\.\d+)*)[.)]?\s*)?"
     r"Ответственность(?:\s+сторон)?\s*:?[ \t]*$"
 )
-NEXT_SECTION_RE = re.compile(
+NUMBERED_LINE_RE = re.compile(
+    r"(?m)^\s*(?P<number>\d+(?:\.\d+)*)[.)]?\s+(?P<body>\S.*)$"
+)
+MARKDOWN_HEADING_RE = re.compile(r"(?m)^\s*(?P<marks>#{1,6})\s+\S.*$")
+FALLBACK_SECTION_RE = re.compile(
     r"(?im)^\s*(?:#{1,6}\s+\S.*|\d+(?:\.\d+)*[.)]?\s+[А-ЯЁ][^\n.!?]{2,100})\s*$"
 )
 NUMBERED_CLAUSE_RE = re.compile(
@@ -83,11 +88,38 @@ class LegalConsequence:
     end: int
 
 
+def _number_depth(value: str) -> int:
+    return value.count(".") + 1
+
+
 def _responsibility_sections(text: str) -> list[tuple[int, int]]:
     sections: list[tuple[int, int]] = []
     for heading in RESPONSIBILITY_HEADING_RE.finditer(text):
-        next_heading = NEXT_SECTION_RE.search(text, heading.end())
-        end = next_heading.start() if next_heading else len(text)
+        candidates: list[int] = []
+        number = heading.group("number")
+        markdown = heading.group("markdown")
+
+        if number:
+            depth = _number_depth(number)
+            for candidate in NUMBERED_LINE_RE.finditer(text, heading.end()):
+                candidate_number = candidate.group("number")
+                if _number_depth(candidate_number) <= depth:
+                    candidates.append(candidate.start())
+                    break
+
+        if markdown:
+            level = len(markdown)
+            for candidate in MARKDOWN_HEADING_RE.finditer(text, heading.end()):
+                if len(candidate.group("marks")) <= level:
+                    candidates.append(candidate.start())
+                    break
+
+        if not number and not markdown:
+            candidate = FALLBACK_SECTION_RE.search(text, heading.end())
+            if candidate:
+                candidates.append(candidate.start())
+
+        end = min(candidates) if candidates else len(text)
         sections.append((heading.end(), end))
     return sections
 
