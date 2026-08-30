@@ -5,12 +5,14 @@ from datetime import date
 from typing import Callable
 
 from .linters import (
+    lint_condition_exception_scope,
     lint_defined_terms,
     lint_instrumental_attachment,
     lint_internal_references,
     lint_legislation_hierarchy,
     lint_legislation_preamble,
     lint_order_directive_infinitives,
+    lint_party_aliases,
     lint_source_governance,
     lint_vague_time_references,
 )
@@ -54,7 +56,9 @@ IMPLEMENTATIONS: dict[str, LinterAdapter] = {
     "DOC-P01": _source_governance,
     "LDB-009": _text_adapter(lint_vague_time_references),
     "LDB-012": _text_adapter(lint_instrumental_attachment),
+    "LDB-015": _text_adapter(lint_condition_exception_scope),
     "ADM-ORDER-001": _text_adapter(lint_order_directive_infinitives),
+    "CTR-001": _text_adapter(lint_party_aliases),
 }
 
 

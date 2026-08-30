@@ -21,6 +21,7 @@ profiles:
       - LDB-013
     protect:
       - defined_terms
+      - legal_modality
       - conventional_document_cliches
     downgrade:
       generic_passive_voice: INFO
@@ -28,6 +29,7 @@ profiles:
       generic_sentence_length: INFO
     disable_for_protected_spans:
       - generic_synonymize_repetition
+      - generic_modality_simplification
       - generic_cliche_rewrite
 
   official-admin/letter:
@@ -81,9 +83,12 @@ profiles:
       - LDB-011
       - LDB-012
       - LDB-013
+      - LDB-015
     protect:
       - defined_terms
       - legal_modality
+      - condition_scope_marker
+      - exception_scope_marker
       - conventional_document_cliches
       - functional_long_syntax
     downgrade:
@@ -125,15 +130,20 @@ profiles:
       - LDB-005
       - LDB-006
       - LDB-007
+      - LDB-008
       - LDB-009
       - LDB-010
       - LDB-011
       - LDB-012
       - LDB-013
+      - LDB-015
+      - CTR-001
     protect:
       - defined_terms
       - party_names
       - obligation_modality
+      - condition_scope_marker
+      - exception_scope_marker
       - cross_references
       - functional_long_syntax
     disable_for_protected_spans:
@@ -145,6 +155,9 @@ profiles:
       generic_passive_voice: INFO
       generic_nominalization: INFO
       generic_sentence_length: INFO
+    notes:
+      - "Сильные формулы обязанности/права/запрета защищаются от упрощения, но токен «может» сам по себе не классифицируется как право."
+      - "Условия и исключения не переставлять между предписаниями без проверки их области действия."
 
   legal-procedural:
     description: "Претензии, иски, отзывы, ходатайства и другая процессуальная документация."

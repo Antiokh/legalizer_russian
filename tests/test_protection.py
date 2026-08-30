@@ -19,6 +19,43 @@ def test_contractual_defined_terms_are_located_and_protected():
     assert "generic_synonymize_repetition" in result.disabled_rules_on_spans
 
 
+def test_contract_party_names_and_modality_are_located_and_protected():
+    text = (
+        'ООО «Альфа», именуемое в дальнейшем «Заказчик», заключает договор.\n'
+        'Заказчик обязан оплатить услуги и вправе запросить отчёт.\n'
+    )
+    result = collect_protected_spans(text, _resolved("contractual"))
+    party_spans = [span for span in result.spans if span.kind == "party_name"]
+    modality_spans = [span for span in result.spans if span.kind == "legal_modality"]
+    assert [span.text for span in party_spans] == ["Заказчик", "Заказчик"]
+    assert [(span.text, span.meta["modality"]) for span in modality_spans] == [
+        ("обязан", "obligation"),
+        ("вправе", "right"),
+    ]
+    assert "party_names" not in result.unresolved_classes
+    assert "obligation_modality" not in result.unresolved_classes
+    assert "generic_modality_simplification" in result.disabled_rules_on_spans
+
+
+def test_contract_condition_and_exception_markers_are_protected():
+    text = (
+        "В случае просрочки Заказчик обязан уплатить неустойку, "
+        "за исключением случаев форс-мажора.\n"
+    )
+    result = collect_protected_spans(text, _resolved("contractual"))
+    spans = [
+        (span.kind, span.text)
+        for span in result.spans
+        if span.kind in {"condition_scope_marker", "exception_scope_marker"}
+    ]
+    assert spans == [
+        ("condition_scope_marker", "В случае"),
+        ("exception_scope_marker", "за исключением"),
+    ]
+    assert "condition_scope_marker" not in result.unresolved_classes
+    assert "exception_scope_marker" not in result.unresolved_classes
+
+
 def test_order_directive_infinitives_are_located_and_protected():
     text = (
         "ПРИКАЗЫВАЮ:\n"
@@ -33,14 +70,16 @@ def test_order_directive_infinitives_are_located_and_protected():
     assert "directive_infinitive" not in result.unresolved_classes
 
 
-def test_unimplemented_protection_classes_stay_visible():
+def test_still_unimplemented_protection_classes_stay_visible():
     result = collect_protected_spans("Текст договора.", _resolved("contractual"))
-    assert "party_names" in result.unresolved_classes
-    assert "obligation_modality" in result.unresolved_classes
+    assert "cross_references" in result.unresolved_classes
+    assert "functional_long_syntax" in result.unresolved_classes
 
 
-def test_profile_without_defined_term_protection_does_not_create_spans():
+def test_profile_without_protection_does_not_create_spans():
     profiles = {"plain": {"enable": []}}
     resolved = resolve_profile("plain", load_rules(), profiles, load_sources())
-    result = collect_protected_spans("ООО «Альфа» (далее — Заказчик). Заказчик платит.", resolved)
+    result = collect_protected_spans(
+        "ООО «Альфа» (далее — Заказчик). Заказчик обязан платить.", resolved
+    )
     assert result.spans == []

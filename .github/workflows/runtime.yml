@@ -23,8 +23,9 @@ jobs:
       - run: cd /tmp && legalizer resolve --profile contractual --json > /tmp/resolved.json
       - run: cd /tmp && legalizer resolve --profile official-admin/order --json > /tmp/order-profile.json
       - run: cd /tmp && legalizer sources --date 2026-08-29 --json > /tmp/sources.json
-      - run: printf 'ООО «Альфа» (далее — Заказчик). Заказчик платит.\n' > /tmp/sample.md
-      - run: cd /tmp && legalizer protect /tmp/sample.md --profile contractual --json > /tmp/protection.json
+      - run: printf 'ООО «Альфа», именуемое в дальнейшем «Заказчик», заключает договор.\nЗаказчик обязан оплатить услуги и вправе запросить отчёт.\n' > /tmp/contract.md
+      - run: cd /tmp && legalizer check /tmp/contract.md --profile contractual --json > /tmp/contract-check.json
+      - run: cd /tmp && legalizer protect /tmp/contract.md --profile contractual --json > /tmp/contract-protection.json
       - run: printf 'ПРИКАЗЫВАЮ:\n1. Директору подготовить предложения.\n2. Бухгалтерии открыть счёт.\n' > /tmp/order.md
       - run: cd /tmp && legalizer check /tmp/order.md --profile official-admin/order --json > /tmp/order-check.json
       - run: cd /tmp && legalizer protect /tmp/order.md --profile official-admin/order --json > /tmp/order-protection.json
