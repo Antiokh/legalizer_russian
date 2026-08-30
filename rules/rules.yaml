@@ -376,3 +376,29 @@ rules:
     trigger: "explicit party aliases exist, but a strong personal обязан/обязуется formula has no locally expressed party subject"
     protects_from: [generic_pronoun_substitution, generic_subject_deletion]
     autofix: never
+
+  CTR-003:
+    title: "Сильная личная формула обязанности должна содержать локально выраженное действие"
+    scope: [contractual]
+    level: clause
+    basis: PROJECT_REFINED
+    confidence: medium-high
+    severity: REVIEW
+    source_ids: [BOOK-ABRAMOVA-2017, BOOK-MARYEVA-2015-2]
+    source_status: DOMAIN_CONVENTION
+    trigger: "explicit contractual party + обязан/обязуется formula has no conservative infinitive-like action in the same clause"
+    protects_from: [generic_action_generalization, generic_verb_simplification]
+    autofix: never
+
+  CTR-004:
+    title: "В разделе ответственности нарушение и правовое последствие должны быть однозначно связаны"
+    scope: [contractual]
+    level: paragraph
+    basis: PROJECT_REFINED
+    confidence: medium-high
+    severity: REVIEW
+    source_ids: [BOOK-ABRAMOVA-2017, BOOK-MARYEVA-2015-2]
+    source_status: DOMAIN_CONVENTION
+    trigger: "explicit responsibility section contains a breach/non-performance marker without a local liability/remedy consequence marker"
+    protects_from: [generic_consequence_softening, generic_causal_rewrite]
+    autofix: never
