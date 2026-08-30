@@ -3,10 +3,12 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 
 from .linters.admin_orders import directive_infinitive_occurrences
+from .linters.consequences import breach_trigger_occurrences, legal_consequence_occurrences
 from .linters.contract_parties import party_alias_occurrences
 from .linters.deadlines import relative_deadline_occurrences
 from .linters.defined_terms import defined_term_occurrences
 from .linters.modality import modality_occurrences
+from .linters.obligations import obligation_action_occurrences
 from .linters.scope import scope_marker_occurrences
 from .model import ResolvedProfile
 from .text import line_column
@@ -101,6 +103,22 @@ def collect_protected_spans(text: str, resolved: ResolvedProfile) -> ProtectionR
                 )
             )
 
+    if "obligation_action" in resolved.protected_classes:
+        resolved_classes.add("obligation_action")
+        for occurrence in obligation_action_occurrences(text):
+            line, column = line_column(text, occurrence.start)
+            spans.append(
+                ProtectedSpan(
+                    kind="obligation_action",
+                    text=occurrence.action,
+                    start=occurrence.start,
+                    end=occurrence.end,
+                    line=line,
+                    column=column,
+                    meta={"modality": occurrence.modality},
+                )
+            )
+
     scope_markers = scope_marker_occurrences(text)
     if "condition_scope_marker" in resolved.protected_classes:
         resolved_classes.add("condition_scope_marker")
@@ -173,6 +191,38 @@ def collect_protected_spans(text: str, resolved: ResolvedProfile) -> ProtectionR
                         meta={"deadline": deadline.text},
                     )
                 )
+
+    if "breach_trigger" in resolved.protected_classes:
+        resolved_classes.add("breach_trigger")
+        for trigger in breach_trigger_occurrences(text):
+            line, column = line_column(text, trigger.start)
+            spans.append(
+                ProtectedSpan(
+                    kind="breach_trigger",
+                    text=trigger.text,
+                    start=trigger.start,
+                    end=trigger.end,
+                    line=line,
+                    column=column,
+                    meta={"form": trigger.kind},
+                )
+            )
+
+    if "legal_consequence" in resolved.protected_classes:
+        resolved_classes.add("legal_consequence")
+        for consequence in legal_consequence_occurrences(text):
+            line, column = line_column(text, consequence.start)
+            spans.append(
+                ProtectedSpan(
+                    kind="legal_consequence",
+                    text=consequence.text,
+                    start=consequence.start,
+                    end=consequence.end,
+                    line=line,
+                    column=column,
+                    meta={"consequence": consequence.kind},
+                )
+            )
 
     if "directive_infinitive" in resolved.protected_classes:
         resolved_classes.add("directive_infinitive")
