@@ -19,7 +19,7 @@ def test_contractual_defined_terms_are_located_and_protected():
     assert "generic_synonymize_repetition" in result.disabled_rules_on_spans
 
 
-def test_contract_party_names_and_modality_are_located_and_protected():
+def test_contract_party_names_modality_and_action_are_located_and_protected():
     text = (
         'ООО «Альфа», именуемое в дальнейшем «Заказчик», заключает договор.\n'
         'Заказчик обязан оплатить услуги и вправе запросить отчёт.\n'
@@ -27,14 +27,19 @@ def test_contract_party_names_and_modality_are_located_and_protected():
     result = collect_protected_spans(text, _resolved("contractual"))
     party_spans = [span for span in result.spans if span.kind == "party_name"]
     modality_spans = [span for span in result.spans if span.kind == "legal_modality"]
+    action_spans = [span for span in result.spans if span.kind == "obligation_action"]
     assert [span.text for span in party_spans] == ["Заказчик", "Заказчик"]
     assert [(span.text, span.meta["modality"]) for span in modality_spans] == [
         ("обязан", "obligation"),
         ("вправе", "right"),
     ]
+    assert [span.text for span in action_spans] == ["оплатить"]
+    assert action_spans[0].meta["modality"].casefold() == "обязан"
     assert "party_names" not in result.unresolved_classes
     assert "obligation_modality" not in result.unresolved_classes
+    assert "obligation_action" not in result.unresolved_classes
     assert "generic_modality_simplification" in result.disabled_rules_on_spans
+    assert "generic_action_generalization" in result.disabled_rules_on_spans
 
 
 def test_contract_condition_and_exception_markers_are_protected():
@@ -70,6 +75,21 @@ def test_relative_deadline_and_anchor_are_protected():
     assert "relative_deadline" not in result.unresolved_classes
     assert "deadline_anchor" not in result.unresolved_classes
     assert "generic_time_simplification" in result.disabled_rules_on_spans
+
+
+def test_breach_trigger_and_consequence_are_protected():
+    text = (
+        "5. Ответственность сторон\n"
+        "5.1. В случае просрочки Заказчик уплачивает неустойку.\n"
+    )
+    result = collect_protected_spans(text, _resolved("contractual"))
+    breach = [span for span in result.spans if span.kind == "breach_trigger"]
+    consequences = [span for span in result.spans if span.kind == "legal_consequence"]
+    assert [span.text.casefold() for span in breach] == ["в случае просрочки"]
+    assert [span.text.casefold() for span in consequences] == ["неустойку"]
+    assert "breach_trigger" not in result.unresolved_classes
+    assert "legal_consequence" not in result.unresolved_classes
+    assert "generic_consequence_softening" in result.disabled_rules_on_spans
 
 
 def test_order_directive_infinitives_are_located_and_protected():
