@@ -14,6 +14,9 @@ RESPONSIBILITY_HEADING_RE = re.compile(
 NEXT_SECTION_RE = re.compile(
     r"(?im)^\s*(?:#{1,6}\s+\S.*|\d+(?:\.\d+)*[.)]?\s+[А-ЯЁ][^\n.!?]{2,100})\s*$"
 )
+NUMBERED_CLAUSE_RE = re.compile(
+    r"(?m)^\s*(?:(?:\d+(?:\.\d+)+)[.)]?|\d+[.)])\s+"
+)
 
 _BREACH_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     (
@@ -123,6 +126,40 @@ def _paragraph_bounds(text: str, offset: int, section_start: int, section_end: i
     return start, end
 
 
+def _local_fragment_bounds(
+    text: str,
+    offset: int,
+    section_start: int,
+    section_end: int,
+) -> tuple[int, int]:
+    """Prefer a numbered contractual clause; otherwise fall back to paragraph bounds.
+
+    Contract sections often contain `5.1`, `5.2`, `5.3` on adjacent lines with no
+    blank line. Treating the whole block as one paragraph would let a sanction in
+    one clause incorrectly satisfy a breach in a different clause.
+    """
+
+    numbered = list(NUMBERED_CLAUSE_RE.finditer(text, section_start, section_end))
+    containing_index: int | None = None
+    for index, match in enumerate(numbered):
+        if match.start() <= offset:
+            containing_index = index
+        else:
+            break
+
+    if containing_index is not None:
+        start = numbered[containing_index].start()
+        end = (
+            numbered[containing_index + 1].start()
+            if containing_index + 1 < len(numbered)
+            else section_end
+        )
+        if start <= offset < end:
+            return start, end
+
+    return _paragraph_bounds(text, offset, section_start, section_end)
+
+
 def lint_breach_consequence_links(text: str, severity: str = "REVIEW") -> list[Finding]:
     """Review breach phrases in an explicit responsibility section with no local consequence.
 
@@ -138,10 +175,10 @@ def lint_breach_consequence_links(text: str, severity: str = "REVIEW") -> list[F
     for section_start, section_end in _responsibility_sections(text):
         section_triggers = [item for item in triggers if section_start <= item.start < section_end]
         for trigger in section_triggers:
-            paragraph_start, paragraph_end = _paragraph_bounds(
+            fragment_start, fragment_end = _local_fragment_bounds(
                 text, trigger.start, section_start, section_end
             )
-            if any(paragraph_start <= item.start < paragraph_end for item in consequences):
+            if any(fragment_start <= item.start < fragment_end for item in consequences):
                 continue
 
             line, column = line_column(text, trigger.start)
