@@ -27,6 +27,20 @@ def test_nested_infinitive_chain_keeps_first_action():
     assert actions[0].action.casefold() == "обеспечить"
 
 
+def test_common_irregular_legal_infinitives_are_detected():
+    samples = {
+        "Заказчик обязан произвести оплату.\n": "произвести",
+        "Исполнитель обязан учесть замечания.\n": "учесть",
+        "Заказчик обязан привлечь специалиста.\n": "привлечь",
+        "Исполнитель обязан пресечь нарушение.\n": "пресечь",
+    }
+    for clause, expected in samples.items():
+        actions = obligation_action_occurrences(_PARTIES + clause)
+        assert len(actions) == 1
+        assert actions[0].action.casefold() == expected
+        assert lint_obligation_content(_PARTIES + clause) == []
+
+
 def test_negated_action_is_still_detected():
     text = _PARTIES + "Исполнитель обязан не разглашать конфиденциальную информацию.\n"
     actions = obligation_action_occurrences(text)
