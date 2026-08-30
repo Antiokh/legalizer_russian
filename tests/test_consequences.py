@@ -38,6 +38,18 @@ def test_breach_without_local_consequence_in_responsibility_section_is_reviewed(
     assert findings[0].meta["breach"].casefold() == "за нарушение"
 
 
+def test_adjacent_numbered_clauses_do_not_share_consequences():
+    text = (
+        "5. Ответственность сторон\n"
+        "5.1. В случае просрочки оплаты Заказчик уплачивает неустойку.\n"
+        "5.2. За нарушение срока передачи результата работ Исполнителем.\n"
+    )
+    findings = lint_breach_consequence_links(text)
+    assert len(findings) == 1
+    assert findings[0].rule_id == "CTR-004"
+    assert findings[0].meta["breach"].casefold() == "за нарушение"
+
+
 def test_breach_outside_responsibility_section_is_not_forced_into_sanction():
     text = "В случае просрочки Заказчик обязан уведомить Исполнителя.\n"
     assert lint_breach_consequence_links(text) == []
