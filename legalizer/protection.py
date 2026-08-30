@@ -4,6 +4,7 @@ from dataclasses import asdict, dataclass
 
 from .linters.admin_orders import directive_infinitive_occurrences
 from .linters.contract_parties import party_alias_occurrences
+from .linters.deadlines import relative_deadline_occurrences
 from .linters.defined_terms import defined_term_occurrences
 from .linters.modality import modality_occurrences
 from .linters.scope import scope_marker_occurrences
@@ -136,6 +137,42 @@ def collect_protected_spans(text: str, resolved: ResolvedProfile) -> ProtectionR
                     meta={"form": marker.form},
                 )
             )
+
+    deadline_classes = {"relative_deadline", "deadline_anchor"} & resolved.protected_classes
+    if deadline_classes:
+        resolved_classes.update(deadline_classes)
+        for deadline in relative_deadline_occurrences(text):
+            if "relative_deadline" in deadline_classes:
+                line, column = line_column(text, deadline.start)
+                spans.append(
+                    ProtectedSpan(
+                        kind="relative_deadline",
+                        text=deadline.text,
+                        start=deadline.start,
+                        end=deadline.end,
+                        line=line,
+                        column=column,
+                        meta={"has_local_anchor": deadline.anchor_text is not None},
+                    )
+                )
+            if (
+                "deadline_anchor" in deadline_classes
+                and deadline.anchor_text is not None
+                and deadline.anchor_start is not None
+                and deadline.anchor_end is not None
+            ):
+                line, column = line_column(text, deadline.anchor_start)
+                spans.append(
+                    ProtectedSpan(
+                        kind="deadline_anchor",
+                        text=deadline.anchor_text,
+                        start=deadline.anchor_start,
+                        end=deadline.anchor_end,
+                        line=line,
+                        column=column,
+                        meta={"deadline": deadline.text},
+                    )
+                )
 
     if "directive_infinitive" in resolved.protected_classes:
         resolved_classes.add("directive_infinitive")
