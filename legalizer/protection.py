@@ -3,7 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 
 from .linters.admin_orders import directive_infinitive_occurrences
+from .linters.contract_parties import party_alias_occurrences
 from .linters.defined_terms import defined_term_occurrences
+from .linters.modality import modality_occurrences
+from .linters.scope import scope_marker_occurrences
 from .model import ResolvedProfile
 from .text import line_column
 
@@ -58,6 +61,79 @@ def collect_protected_spans(text: str, resolved: ResolvedProfile) -> ProtectionR
                         "canonical": term.alias,
                         "definition_line": term.line,
                     },
+                )
+            )
+
+    if "party_names" in resolved.protected_classes:
+        resolved_classes.add("party_names")
+        for party, match in party_alias_occurrences(text):
+            line, column = line_column(text, match.start())
+            spans.append(
+                ProtectedSpan(
+                    kind="party_name",
+                    text=match.group(0),
+                    start=match.start(),
+                    end=match.end(),
+                    line=line,
+                    column=column,
+                    meta={
+                        "canonical": party.alias,
+                        "definition_line": party.line,
+                    },
+                )
+            )
+
+    modality_classes = {"obligation_modality", "legal_modality"} & resolved.protected_classes
+    if modality_classes:
+        resolved_classes.update(modality_classes)
+        for occurrence in modality_occurrences(text):
+            line, column = line_column(text, occurrence.start)
+            spans.append(
+                ProtectedSpan(
+                    kind="legal_modality",
+                    text=occurrence.text,
+                    start=occurrence.start,
+                    end=occurrence.end,
+                    line=line,
+                    column=column,
+                    meta={"modality": occurrence.kind},
+                )
+            )
+
+    scope_markers = scope_marker_occurrences(text)
+    if "condition_scope_marker" in resolved.protected_classes:
+        resolved_classes.add("condition_scope_marker")
+        for marker in scope_markers:
+            if marker.kind != "condition":
+                continue
+            line, column = line_column(text, marker.start)
+            spans.append(
+                ProtectedSpan(
+                    kind="condition_scope_marker",
+                    text=marker.text,
+                    start=marker.start,
+                    end=marker.end,
+                    line=line,
+                    column=column,
+                    meta={"form": marker.form},
+                )
+            )
+
+    if "exception_scope_marker" in resolved.protected_classes:
+        resolved_classes.add("exception_scope_marker")
+        for marker in scope_markers:
+            if marker.kind != "exception":
+                continue
+            line, column = line_column(text, marker.start)
+            spans.append(
+                ProtectedSpan(
+                    kind="exception_scope_marker",
+                    text=marker.text,
+                    start=marker.start,
+                    end=marker.end,
+                    line=line,
+                    column=column,
+                    meta={"form": marker.form},
                 )
             )
 
