@@ -148,21 +148,28 @@ profiles:
       - LDB-016
       - CTR-001
       - CTR-002
+      - CTR-003
+      - CTR-004
     protect:
       - defined_terms
       - party_names
       - obligation_modality
+      - obligation_action
       - condition_scope_marker
       - exception_scope_marker
       - relative_deadline
       - deadline_anchor
+      - breach_trigger
+      - legal_consequence
       - cross_references
       - functional_long_syntax
     disable_for_protected_spans:
       - generic_synonymize_repetition
       - generic_pronoun_substitution
       - generic_modality_simplification
+      - generic_action_generalization
       - generic_time_simplification
+      - generic_consequence_softening
       - generic_sentence_split
     downgrade:
       generic_passive_voice: INFO
@@ -172,7 +179,9 @@ profiles:
       - "Сильные формулы обязанности/права/запрета защищаются от упрощения, но токен «может» сам по себе не классифицируется как право."
       - "Условия и исключения не переставлять между предписаниями без проверки их области действия."
       - "Если обязанная сторона выражена только контекстом, не подставлять её автоматически: сначала проверить структуру договора."
+      - "После сильной личной формулы обязанности сохранять конкретное действие; объект, объём, качество и иные параметры проверять семантически, а не додумывать."
       - "Относительный срок не переписывать без сохранения события, от которого он исчисляется."
+      - "В разделе ответственности не разрывать связь между нарушением и последствием; отсутствие локального последствия означает REVIEW, а не автоматическую вставку санкции."
 
   legal-procedural:
     description: "Претензии, иски, отзывы, ходатайства и другая процессуальная документация."
