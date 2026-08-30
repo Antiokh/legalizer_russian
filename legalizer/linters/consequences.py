@@ -41,7 +41,10 @@ _CONSEQUENCE_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ),
     (
         "penalty",
-        re.compile(r"\b(?:неустойк[аиуойе]?|штраф(?:а|у|ом|е)?|пен(?:я|и|ю|ей))\b", re.IGNORECASE),
+        re.compile(
+            r"\b(?:неустойк(?:а|и|у|ой|е)?|штраф(?:а|у|ом|е)?|пен(?:я|и|ю|ей))\b",
+            re.IGNORECASE,
+        ),
     ),
     (
         "damages",
