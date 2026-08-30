@@ -11,8 +11,10 @@ from .linters import (
     lint_internal_references,
     lint_legislation_hierarchy,
     lint_legislation_preamble,
+    lint_obligation_subjects,
     lint_order_directive_infinitives,
     lint_party_aliases,
+    lint_relative_deadline_anchors,
     lint_source_governance,
     lint_vague_time_references,
 )
@@ -57,8 +59,10 @@ IMPLEMENTATIONS: dict[str, LinterAdapter] = {
     "LDB-009": _text_adapter(lint_vague_time_references),
     "LDB-012": _text_adapter(lint_instrumental_attachment),
     "LDB-015": _text_adapter(lint_condition_exception_scope),
+    "LDB-016": _text_adapter(lint_relative_deadline_anchors),
     "ADM-ORDER-001": _text_adapter(lint_order_directive_infinitives),
     "CTR-001": _text_adapter(lint_party_aliases),
+    "CTR-002": _text_adapter(lint_obligation_subjects),
 }
 
 
