@@ -209,7 +209,7 @@ rules:
 
   LDB-008:
     title: "Модальность соответствует юридической функции"
-    scope: [official-admin, normative, normative/legislation]
+    scope: [official-admin, normative, normative/legislation, contractual]
     level: clause
     basis: PROJECT_REFINED
     confidence: medium-high
@@ -290,6 +290,19 @@ rules:
     protects_from: [generic_imperative_rewrite]
     autofix: never
 
+  LDB-015:
+    title: "Условие, юридическая модальность и исключение сохраняют область действия"
+    scope: [normative, normative/legislation, contractual]
+    level: clause
+    basis: PROJECT_REFINED
+    confidence: medium-high
+    severity: REVIEW
+    source_ids: [BOOK-ABRAMOVA-2017, BOOK-MARYEVA-2015-2]
+    source_status: DOMAIN_CONVENTION
+    trigger: "condition + strong legal modality + exception occur in one nearby fragment"
+    protects_from: [generic_modality_simplification, generic_sentence_split]
+    autofix: never
+
   ADM-LETTER-001:
     title: "Деловое письмо строится функционально; аналитическая основная часть не обязательна"
     scope: [official-admin/letter]
@@ -323,4 +336,17 @@ rules:
     severity: REVIEW
     source_ids: [BOOK-ABRAMOVA-2017]
     source_status: DOMAIN_CONVENTION
+    autofix: never
+
+  CTR-001:
+    title: "Введённые обозначения сторон договора используются последовательно"
+    scope: [contractual]
+    level: term
+    basis: PROJECT_REFINED
+    confidence: high
+    severity: REVIEW
+    source_ids: [BOOK-MARYEVA-2015-2, BOOK-ABRAMOVA-2017]
+    source_status: DOMAIN_CONVENTION
+    trigger: "explicit «именуем… в дальнейшем X» role is reused before introduction or introduced twice"
+    protects_from: [generic_synonymize_repetition, generic_pronoun_substitution]
     autofix: never
