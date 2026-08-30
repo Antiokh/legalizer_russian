@@ -50,6 +50,29 @@ def test_adjacent_numbered_clauses_do_not_share_consequences():
     assert findings[0].meta["breach"].casefold() == "за нарушение"
 
 
+def test_nested_clause_without_terminal_punctuation_stays_in_numbered_section():
+    text = (
+        "5. Ответственность сторон\n"
+        "5.1 В случае просрочки оплаты Заказчик уплачивает штраф\n"
+        "5.2 За нарушение срока передачи результата работ Исполнителем\n"
+        "6. Срок действия договора\n"
+    )
+    findings = lint_breach_consequence_links(text)
+    assert len(findings) == 1
+    assert findings[0].meta["breach"].casefold() == "за нарушение"
+
+
+def test_markdown_subheading_does_not_end_responsibility_section():
+    text = (
+        "## Ответственность сторон\n"
+        "### Просрочка\n"
+        "В случае просрочки Заказчик уплачивает пеню.\n"
+        "## Срок действия\n"
+        "В случае просрочки продления Стороны направляют уведомление.\n"
+    )
+    assert lint_breach_consequence_links(text) == []
+
+
 def test_breach_outside_responsibility_section_is_not_forced_into_sanction():
     text = "В случае просрочки Заказчик обязан уведомить Исполнителя.\n"
     assert lint_breach_consequence_links(text) == []
