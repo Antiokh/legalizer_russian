@@ -5,12 +5,14 @@ from datetime import date
 from typing import Callable
 
 from .linters import (
+    lint_breach_consequence_links,
     lint_condition_exception_scope,
     lint_defined_terms,
     lint_instrumental_attachment,
     lint_internal_references,
     lint_legislation_hierarchy,
     lint_legislation_preamble,
+    lint_obligation_content,
     lint_obligation_subjects,
     lint_order_directive_infinitives,
     lint_party_aliases,
@@ -63,6 +65,8 @@ IMPLEMENTATIONS: dict[str, LinterAdapter] = {
     "ADM-ORDER-001": _text_adapter(lint_order_directive_infinitives),
     "CTR-001": _text_adapter(lint_party_aliases),
     "CTR-002": _text_adapter(lint_obligation_subjects),
+    "CTR-003": _text_adapter(lint_obligation_content),
+    "CTR-004": _text_adapter(lint_breach_consequence_links),
 }
 
 

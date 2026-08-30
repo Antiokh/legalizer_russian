@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 from ..model import Finding
 from ..text import line_column, line_excerpt
+from .verb_forms import infinitive_occurrences
 
 
 ORDER_MARKER_RE = re.compile(r"(?im)^\s*ПРИКАЗЫВАЮ\s*:?[ \t]*$")
@@ -16,16 +17,6 @@ ORDER_STOP_RE = re.compile(
 NUMBERED_DIRECTIVE_RE = re.compile(
     r"(?m)^\s*(?P<num>\d+)[.)]\s+(?P<body>\S.*)$"
 )
-INFINITIVE_CANDIDATE_RE = re.compile(
-    r"\b(?:"
-    r"[А-Яа-яЁё-]{2,}(?:ать|ять|еть|ить|уть|ыть|оть)(?:ся)?"
-    r"|внести|ввести|провести|довести|привести|перевести|вывести|отвести"
-    r"|принести|донести|занести|нести|вести|идти|прийти|найти|войти|выйти"
-    r"|перейти|подойти|уйти|пройти|сойти|дойти"
-    r")\b",
-    re.IGNORECASE,
-)
-_NON_VERB_CANDIDATES = {"печать", "память", "кровать", "благодать"}
 
 
 @dataclass(slots=True)
@@ -34,10 +25,6 @@ class DirectiveParagraph:
     start: int
     end: int
     text: str
-
-
-def _is_infinitive_candidate(match: re.Match[str]) -> bool:
-    return match.group(0).casefold() not in _NON_VERB_CANDIDATES
 
 
 def extract_order_directives(text: str) -> list[DirectiveParagraph]:
@@ -69,9 +56,8 @@ def directive_infinitive_occurrences(text: str) -> list[tuple[DirectiveParagraph
 
     occurrences: list[tuple[DirectiveParagraph, re.Match[str]]] = []
     for directive in extract_order_directives(text):
-        for match in INFINITIVE_CANDIDATE_RE.finditer(text, directive.start, directive.end):
-            if _is_infinitive_candidate(match):
-                occurrences.append((directive, match))
+        for match in infinitive_occurrences(text, directive.start, directive.end):
+            occurrences.append((directive, match))
     return occurrences
 
 
